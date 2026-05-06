@@ -1,0 +1,12 @@
+com\example\ragsearch\controller\DocumentController.class
+com\example\ragsearch\model\DocumentChunk.class
+com\example\ragsearch\model\UploadResponse.class
+com\example\ragsearch\RagSearchApplication.class
+com\example\ragsearch\config\GenerativeAiConfig.class
+com\example\ragsearch\service\DocumentService.class
+com\example\ragsearch\service\GoogleGenerativeAiService$1.class
+com\example\ragsearch\service\GoogleGenerativeAiService.class
+com\example\ragsearch\controller\QueryController.class
+com\example\ragsearch\model\QueryRequest.class
+com\example\ragsearch\model\QueryResponse.class
+com\example\ragsearch\model\DocumentMetadata.class

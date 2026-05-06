@@ -1,0 +1,812 @@
+2026-05-04T22:18:26.196-04:00  INFO 26996 --- [main] c.e.ragsearch.RagSearchApplication       : Starting RagSearchApplication using Java 21.0.10 with PID 26996 (D:\Projects\RAG AI Search\backend\target\classes started by shash in D:\Projects\RAG AI Search\backend)
+2026-05-04T22:18:26.196-04:00 DEBUG 26996 --- [main] c.e.ragsearch.RagSearchApplication       : Running with Spring Boot v3.2.12, Spring v6.1.15
+2026-05-04T22:18:26.196-04:00  INFO 26996 --- [main] c.e.ragsearch.RagSearchApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-05-04T22:18:27.001-04:00  INFO 26996 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-05-04T22:18:27.008-04:00  INFO 26996 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-04T22:18:27.010-04:00  INFO 26996 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.33]
+2026-05-04T22:18:27.056-04:00  INFO 26996 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-04T22:18:27.056-04:00  INFO 26996 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 820 ms
+2026-05-04T22:18:27.153-04:00  INFO 26996 --- [main] c.e.r.service.GoogleGenerativeAiService  : GoogleGenerativeAiService initialized with chat model: gemini-2.5-flash-lite, embedding model: gemini-embedding-001
+2026-05-04T22:18:27.153-04:00  INFO 26996 --- [main] c.e.ragsearch.service.DocumentService    : DocumentService initialized
+2026-05-04T22:18:27.385-04:00  INFO 26996 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-05-04T22:18:27.426-04:00  INFO 26996 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2026-05-04T22:18:27.432-04:00  INFO 26996 --- [main] c.e.ragsearch.RagSearchApplication       : Started RagSearchApplication in 1.569 seconds (process running for 1.819)
+2026-05-04T22:19:14.209-04:00  INFO 26996 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-04T22:19:14.209-04:00  INFO 26996 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-05-04T22:19:14.209-04:00  INFO 26996 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-05-04T22:19:14.257-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.r.controller.DocumentController      : Received upload request with 1 file(s)
+2026-05-04T22:19:14.257-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.r.controller.DocumentController      : File [1]: name='Get_Started_With_Smallpdf.pdf', size=69173 bytes
+2026-05-04T22:19:14.257-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Starting file ingestion: Get_Started_With_Smallpdf.pdf, size: 69173 bytes
+2026-05-04T22:19:14.273-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Step 1: Extracting text from file
+2026-05-04T22:19:14.273-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Processing PDF file: Get_Started_With_Smallpdf.pdf
+2026-05-04T22:19:14.457-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Extracted 841 characters from PDF
+2026-05-04T22:19:14.457-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Step 1 completed: Extracted 841 characters
+2026-05-04T22:19:14.457-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Step 2: Generating document ID and metadata
+2026-05-04T22:19:14.457-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Step 2 completed: Document Get_Started_With_Smallpdf.pdf stored with ID: efc7ed83-259b-4354-8e52-7a1bc37fa08b
+2026-05-04T22:19:14.457-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Step 3: Splitting text into chunks
+2026-05-04T22:19:14.457-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Step 3 completed: Document split into 1 chunks
+2026-05-04T22:19:14.457-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Step 4: Computing embeddings for 1 chunks
+2026-05-04T22:19:14.457-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.r.service.GoogleGenerativeAiService  : Embedding 1 text(s)
+2026-05-04T22:19:14.457-04:00 DEBUG 26996 --- [http-nio-8080-exec-1] c.e.r.service.GoogleGenerativeAiService  : Embedding text 1 of 1, length: 838 chars
+2026-05-04T22:19:14.457-04:00 DEBUG 26996 --- [http-nio-8080-exec-1] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 838
+2026-05-04T22:19:14.457-04:00 DEBUG 26996 --- [http-nio-8080-exec-1] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:19:15.028-04:00 DEBUG 26996 --- [http-nio-8080-exec-1] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:19:15.028-04:00 DEBUG 26996 --- [http-nio-8080-exec-1] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:19:15.028-04:00 DEBUG 26996 --- [http-nio-8080-exec-1] c.e.r.service.GoogleGenerativeAiService  : Embedding 1 dimension: 3072
+2026-05-04T22:19:15.028-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.r.service.GoogleGenerativeAiService  : Successfully embedded 1 texts
+2026-05-04T22:19:15.028-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Step 4 completed: Embeddings computed in 571 ms
+2026-05-04T22:19:15.028-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Step 5: Storing chunks with embeddings
+2026-05-04T22:19:15.028-04:00 DEBUG 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Stored chunk [1] with embedding dimension: 3072
+2026-05-04T22:19:15.028-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Step 5 completed: All 1 chunks stored
+2026-05-04T22:19:15.028-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.ragsearch.service.DocumentService    : Ingestion complete in 771 ms. Total chunks in system: 1
+2026-05-04T22:19:15.028-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.r.controller.DocumentController      : Successfully uploaded file: Get_Started_With_Smallpdf.pdf
+2026-05-04T22:19:15.028-04:00  INFO 26996 --- [http-nio-8080-exec-1] c.e.r.controller.DocumentController      : Upload complete. 1 file(s) processed
+2026-05-04T22:19:15.064-04:00  INFO 26996 --- [http-nio-8080-exec-2] c.e.r.controller.DocumentController      : Fetching document list
+2026-05-04T22:19:15.064-04:00 DEBUG 26996 --- [http-nio-8080-exec-2] c.e.ragsearch.service.DocumentService    : Listing 1 documents
+2026-05-04T22:19:15.065-04:00  INFO 26996 --- [http-nio-8080-exec-2] c.e.r.controller.DocumentController      : Returning 1 documents
+2026-05-04T22:19:43.388-04:00  INFO 26996 --- [http-nio-8080-exec-3] c.e.r.controller.QueryController         : Received query request
+2026-05-04T22:19:43.388-04:00  INFO 26996 --- [http-nio-8080-exec-3] c.e.r.controller.QueryController         : Processing query: 'Where can i see all the processed files ?
+'
+2026-05-04T22:19:43.389-04:00  INFO 26996 --- [http-nio-8080-exec-3] c.e.ragsearch.service.DocumentService    : Processing query: 'Where can i see all the processed files ?
+'
+2026-05-04T22:19:43.389-04:00 DEBUG 26996 --- [http-nio-8080-exec-3] c.e.ragsearch.service.DocumentService    : Total chunks available: 1
+2026-05-04T22:19:43.389-04:00  INFO 26996 --- [http-nio-8080-exec-3] c.e.ragsearch.service.DocumentService    : Computing embedding for query
+2026-05-04T22:19:43.390-04:00 DEBUG 26996 --- [http-nio-8080-exec-3] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 42
+2026-05-04T22:19:43.390-04:00 DEBUG 26996 --- [http-nio-8080-exec-3] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:19:43.707-04:00 DEBUG 26996 --- [http-nio-8080-exec-3] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:19:43.708-04:00 DEBUG 26996 --- [http-nio-8080-exec-3] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:19:43.708-04:00 DEBUG 26996 --- [http-nio-8080-exec-3] c.e.ragsearch.service.DocumentService    : Query embedding dimension: 3072
+2026-05-04T22:19:43.708-04:00  INFO 26996 --- [http-nio-8080-exec-3] c.e.ragsearch.service.DocumentService    : Finding nearest chunks using cosine similarity
+2026-05-04T22:19:43.711-04:00 DEBUG 26996 --- [http-nio-8080-exec-3] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6337901816966364
+2026-05-04T22:19:43.711-04:00 DEBUG 26996 --- [http-nio-8080-exec-3] c.e.ragsearch.service.DocumentService    : Selected chunk with similarity: 0.6337901816966364
+2026-05-04T22:19:43.711-04:00  INFO 26996 --- [http-nio-8080-exec-3] c.e.ragsearch.service.DocumentService    : Selected 1 nearest chunks
+2026-05-04T22:19:43.712-04:00  INFO 26996 --- [http-nio-8080-exec-3] c.e.ragsearch.service.DocumentService    : Generating answer based on 1 context excerpts
+2026-05-04T22:19:43.712-04:00  INFO 26996 --- [http-nio-8080-exec-3] c.e.r.service.GoogleGenerativeAiService  : Creating answer for query: 'Where can i see all the processed files ?
+' using 1 context excerpts
+2026-05-04T22:19:43.712-04:00 DEBUG 26996 --- [http-nio-8080-exec-3] c.e.r.service.GoogleGenerativeAiService  : Context [1] length: 838 chars
+2026-05-04T22:19:43.712-04:00 DEBUG 26996 --- [http-nio-8080-exec-3] c.e.r.service.GoogleGenerativeAiService  : Final prompt length: 1121 chars
+2026-05-04T22:19:43.713-04:00  INFO 26996 --- [http-nio-8080-exec-3] c.e.r.service.GoogleGenerativeAiService  : Calling generateContent API with chat model: gemini-2.5-flash-lite
+2026-05-04T22:19:43.713-04:00 DEBUG 26996 --- [http-nio-8080-exec-3] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent
+2026-05-04T22:19:44.485-04:00 DEBUG 26996 --- [http-nio-8080-exec-3] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:19:44.485-04:00 DEBUG 26996 --- [http-nio-8080-exec-3] c.e.r.service.GoogleGenerativeAiService  : Chat response contains 1 candidates
+2026-05-04T22:19:44.485-04:00  INFO 26996 --- [http-nio-8080-exec-3] c.e.r.service.GoogleGenerativeAiService  : Generated answer length: 231 chars
+2026-05-04T22:19:44.485-04:00 DEBUG 26996 --- [http-nio-8080-exec-3] c.e.r.service.GoogleGenerativeAiService  : Generated answer: When you enable the ‘Storage’ option, we’ll also store all processed files here. You can access files stored on Smallpdf from your computer, phone, or tablet. We’ll also sync files from the Smallpdf Mobile App to our online portal.
+2026-05-04T22:19:44.485-04:00  INFO 26996 --- [http-nio-8080-exec-3] c.e.ragsearch.service.DocumentService    : Answer generated with 1 source document(s)
+2026-05-04T22:19:44.485-04:00  INFO 26996 --- [http-nio-8080-exec-3] c.e.r.controller.QueryController         : Query processed successfully. Answer length: 231 chars, sources: 1
+2026-05-04T22:21:10.337-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.r.controller.DocumentController      : Received upload request with 1 file(s)
+2026-05-04T22:21:10.338-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.r.controller.DocumentController      : File [1]: name='2605.00340v1.pdf', size=202998 bytes
+2026-05-04T22:21:10.338-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Starting file ingestion: 2605.00340v1.pdf, size: 202998 bytes
+2026-05-04T22:21:10.338-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Step 1: Extracting text from file
+2026-05-04T22:21:10.339-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Processing PDF file: 2605.00340v1.pdf
+2026-05-04T22:21:10.506-04:00  WARN 26996 --- [http-nio-8080-exec-7] o.a.p.p.font.FileSystemFontProvider      : 334 new fonts found, font cache will be re-built
+2026-05-04T22:21:10.506-04:00  WARN 26996 --- [http-nio-8080-exec-7] o.a.p.p.font.FileSystemFontProvider      : Building on-disk font cache, this may take a while
+2026-05-04T22:21:11.089-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 3 but should be 1
+2026-05-04T22:21:11.137-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 3 but should be 1
+2026-05-04T22:21:11.195-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 3 but should be 1
+2026-05-04T22:21:11.401-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:14.998-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:15.405-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:15.479-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:15.539-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:17.621-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 108 but should be 1
+2026-05-04T22:21:17.623-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 112 but should be 1
+2026-05-04T22:21:17.623-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 116 but should be 1
+2026-05-04T22:21:17.671-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 108 but should be 1
+2026-05-04T22:21:17.671-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 112 but should be 1
+2026-05-04T22:21:17.671-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 116 but should be 1
+2026-05-04T22:21:17.713-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 108 but should be 1
+2026-05-04T22:21:17.713-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 112 but should be 1
+2026-05-04T22:21:17.713-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 116 but should be 1
+2026-05-04T22:21:17.747-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 108 but should be 1
+2026-05-04T22:21:17.748-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 112 but should be 1
+2026-05-04T22:21:17.748-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 116 but should be 1
+2026-05-04T22:21:17.785-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 108 but should be 1
+2026-05-04T22:21:17.786-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 112 but should be 1
+2026-05-04T22:21:17.786-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 116 but should be 1
+2026-05-04T22:21:17.817-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 108 but should be 1
+2026-05-04T22:21:17.817-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 112 but should be 1
+2026-05-04T22:21:17.817-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 116 but should be 1
+2026-05-04T22:21:18.074-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:18.093-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:18.281-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:18.281-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:18.281-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:18.281-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:18.281-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:18.281-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:18.281-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:18.281-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:18.281-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:18.281-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:18.281-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:18.281-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:18.281-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:18.281-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:18.770-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:20.313-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:20.318-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:20.429-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:20.533-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:20.686-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:20.686-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:20.818-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:20.953-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:20.953-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:21.045-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:21.203-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:21.218-04:00 ERROR 26996 --- [http-nio-8080-exec-7] o.a.fontbox.ttf.GlyphSubstitutionTable   : The expected SubstFormat for ExtensionSubstFormat1 subtable is 7 but should be 1
+2026-05-04T22:21:21.293-04:00  WARN 26996 --- [http-nio-8080-exec-7] org.apache.fontbox.ttf.CmapSubtable      : Format 14 cmap table is not supported and will be ignored
+2026-05-04T22:21:21.399-04:00  WARN 26996 --- [http-nio-8080-exec-7] o.a.p.p.font.FileSystemFontProvider      : Finished building on-disk font cache, found 357 fonts
+2026-05-04T22:21:21.553-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Extracted 53457 characters from PDF
+2026-05-04T22:21:21.553-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Step 1 completed: Extracted 53457 characters
+2026-05-04T22:21:21.553-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Step 2: Generating document ID and metadata
+2026-05-04T22:21:21.553-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Step 2 completed: Document 2605.00340v1.pdf stored with ID: dc9f0e97-106d-422c-b4de-40b2905c1af2
+2026-05-04T22:21:21.553-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Step 3: Splitting text into chunks
+2026-05-04T22:21:21.569-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Step 3 completed: Document split into 77 chunks
+2026-05-04T22:21:21.569-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Step 4: Computing embeddings for 77 chunks
+2026-05-04T22:21:21.569-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 77 text(s)
+2026-05-04T22:21:21.569-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 1 of 77, length: 900 chars
+2026-05-04T22:21:21.569-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:21.569-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:21.991-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:21.991-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:21.991-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 1 dimension: 3072
+2026-05-04T22:21:21.991-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 2 of 77, length: 900 chars
+2026-05-04T22:21:21.991-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:21.991-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:22.244-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:22.244-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:22.244-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 2 dimension: 3072
+2026-05-04T22:21:22.244-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 3 of 77, length: 900 chars
+2026-05-04T22:21:22.244-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:22.244-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:22.496-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:22.496-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:22.496-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 3 dimension: 3072
+2026-05-04T22:21:22.496-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 4 of 77, length: 900 chars
+2026-05-04T22:21:22.496-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:22.496-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:22.731-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:22.731-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:22.731-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 4 dimension: 3072
+2026-05-04T22:21:22.731-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 5 of 77, length: 899 chars
+2026-05-04T22:21:22.731-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:22.731-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:22.993-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:22.993-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:22.993-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 5 dimension: 3072
+2026-05-04T22:21:22.993-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 6 of 77, length: 896 chars
+2026-05-04T22:21:22.993-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 896
+2026-05-04T22:21:22.993-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:23.309-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:23.309-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:23.309-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 6 dimension: 3072
+2026-05-04T22:21:23.309-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 7 of 77, length: 899 chars
+2026-05-04T22:21:23.309-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:23.309-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:23.710-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:23.710-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:23.710-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 7 dimension: 3072
+2026-05-04T22:21:23.710-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 8 of 77, length: 900 chars
+2026-05-04T22:21:23.710-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:23.710-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:23.913-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:23.913-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:23.913-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 8 dimension: 3072
+2026-05-04T22:21:23.913-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 9 of 77, length: 900 chars
+2026-05-04T22:21:23.913-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:23.913-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:24.229-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:24.229-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:24.229-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 9 dimension: 3072
+2026-05-04T22:21:24.229-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 10 of 77, length: 900 chars
+2026-05-04T22:21:24.229-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:24.229-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:24.427-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:24.427-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:24.427-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 10 dimension: 3072
+2026-05-04T22:21:24.427-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 11 of 77, length: 900 chars
+2026-05-04T22:21:24.427-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:24.427-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:24.651-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:24.651-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:24.651-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 11 dimension: 3072
+2026-05-04T22:21:24.651-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 12 of 77, length: 899 chars
+2026-05-04T22:21:24.651-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:24.651-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:24.935-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:24.935-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:24.935-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 12 dimension: 3072
+2026-05-04T22:21:24.935-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 13 of 77, length: 899 chars
+2026-05-04T22:21:24.935-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:24.935-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:25.254-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:25.254-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:25.254-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 13 dimension: 3072
+2026-05-04T22:21:25.254-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 14 of 77, length: 898 chars
+2026-05-04T22:21:25.254-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 898
+2026-05-04T22:21:25.254-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:25.497-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:25.497-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:25.497-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 14 dimension: 3072
+2026-05-04T22:21:25.497-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 15 of 77, length: 899 chars
+2026-05-04T22:21:25.497-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:25.497-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:25.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:25.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:25.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 15 dimension: 3072
+2026-05-04T22:21:25.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 16 of 77, length: 900 chars
+2026-05-04T22:21:25.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:25.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:26.068-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:26.068-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:26.068-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 16 dimension: 3072
+2026-05-04T22:21:26.068-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 17 of 77, length: 900 chars
+2026-05-04T22:21:26.068-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:26.068-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:26.371-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:26.371-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:26.371-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 17 dimension: 3072
+2026-05-04T22:21:26.371-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 18 of 77, length: 899 chars
+2026-05-04T22:21:26.371-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:26.371-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:26.578-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:26.578-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:26.578-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 18 dimension: 3072
+2026-05-04T22:21:26.578-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 19 of 77, length: 900 chars
+2026-05-04T22:21:26.578-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:26.578-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:26.884-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:26.884-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:26.884-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 19 dimension: 3072
+2026-05-04T22:21:26.900-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 20 of 77, length: 899 chars
+2026-05-04T22:21:26.901-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:26.901-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:27.189-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:27.189-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:27.189-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 20 dimension: 3072
+2026-05-04T22:21:27.189-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 21 of 77, length: 900 chars
+2026-05-04T22:21:27.189-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:27.189-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:27.403-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:27.403-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:27.403-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 21 dimension: 3072
+2026-05-04T22:21:27.403-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 22 of 77, length: 900 chars
+2026-05-04T22:21:27.403-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:27.403-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:27.708-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:27.714-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:27.714-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 22 dimension: 3072
+2026-05-04T22:21:27.714-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 23 of 77, length: 899 chars
+2026-05-04T22:21:27.714-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:27.714-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:27.911-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:27.911-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:27.911-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 23 dimension: 3072
+2026-05-04T22:21:27.911-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 24 of 77, length: 900 chars
+2026-05-04T22:21:27.911-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:27.911-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:28.212-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:28.212-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:28.212-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 24 dimension: 3072
+2026-05-04T22:21:28.212-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 25 of 77, length: 900 chars
+2026-05-04T22:21:28.212-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:28.212-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:28.532-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:28.532-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:28.532-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 25 dimension: 3072
+2026-05-04T22:21:28.532-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 26 of 77, length: 900 chars
+2026-05-04T22:21:28.532-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:28.532-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:28.839-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:28.839-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:28.839-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 26 dimension: 3072
+2026-05-04T22:21:28.839-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 27 of 77, length: 900 chars
+2026-05-04T22:21:28.839-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:28.839-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:29.148-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:29.148-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:29.148-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 27 dimension: 3072
+2026-05-04T22:21:29.148-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 28 of 77, length: 900 chars
+2026-05-04T22:21:29.148-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:29.148-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:29.448-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:29.448-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:29.448-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 28 dimension: 3072
+2026-05-04T22:21:29.448-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 29 of 77, length: 900 chars
+2026-05-04T22:21:29.448-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:29.448-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:29.659-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:29.659-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:29.659-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 29 dimension: 3072
+2026-05-04T22:21:29.659-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 30 of 77, length: 900 chars
+2026-05-04T22:21:29.659-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:29.659-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:29.849-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:29.849-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:29.849-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 30 dimension: 3072
+2026-05-04T22:21:29.849-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 31 of 77, length: 900 chars
+2026-05-04T22:21:29.849-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:29.849-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:30.037-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:30.037-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:30.037-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 31 dimension: 3072
+2026-05-04T22:21:30.037-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 32 of 77, length: 900 chars
+2026-05-04T22:21:30.037-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:30.037-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:30.273-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:30.273-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:30.273-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 32 dimension: 3072
+2026-05-04T22:21:30.273-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 33 of 77, length: 900 chars
+2026-05-04T22:21:30.273-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:30.273-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:30.492-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:30.492-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:30.492-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 33 dimension: 3072
+2026-05-04T22:21:30.492-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 34 of 77, length: 900 chars
+2026-05-04T22:21:30.492-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:30.492-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:30.754-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:30.754-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:30.754-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 34 dimension: 3072
+2026-05-04T22:21:30.754-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 35 of 77, length: 900 chars
+2026-05-04T22:21:30.754-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:30.754-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:30.982-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:30.982-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:30.982-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 35 dimension: 3072
+2026-05-04T22:21:30.982-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 36 of 77, length: 900 chars
+2026-05-04T22:21:30.982-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:30.982-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:31.297-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:31.297-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:31.297-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 36 dimension: 3072
+2026-05-04T22:21:31.297-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 37 of 77, length: 900 chars
+2026-05-04T22:21:31.297-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:31.297-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:31.602-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:31.602-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:31.602-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 37 dimension: 3072
+2026-05-04T22:21:31.602-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 38 of 77, length: 900 chars
+2026-05-04T22:21:31.602-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:31.602-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:31.797-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:31.797-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:31.797-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 38 dimension: 3072
+2026-05-04T22:21:31.797-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 39 of 77, length: 900 chars
+2026-05-04T22:21:31.797-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:31.797-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:32.114-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:32.120-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:32.120-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 39 dimension: 3072
+2026-05-04T22:21:32.120-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 40 of 77, length: 900 chars
+2026-05-04T22:21:32.120-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:32.120-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:32.324-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:32.325-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:32.325-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 40 dimension: 3072
+2026-05-04T22:21:32.325-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 41 of 77, length: 900 chars
+2026-05-04T22:21:32.325-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:32.326-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:32.621-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:32.629-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:32.629-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 41 dimension: 3072
+2026-05-04T22:21:32.629-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 42 of 77, length: 898 chars
+2026-05-04T22:21:32.629-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 898
+2026-05-04T22:21:32.629-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:32.832-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:32.832-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:32.832-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 42 dimension: 3072
+2026-05-04T22:21:32.832-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 43 of 77, length: 900 chars
+2026-05-04T22:21:32.832-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:32.832-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:33.126-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:33.126-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:33.126-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 43 dimension: 3072
+2026-05-04T22:21:33.126-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 44 of 77, length: 900 chars
+2026-05-04T22:21:33.126-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:33.126-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:33.447-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:33.447-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:33.447-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 44 dimension: 3072
+2026-05-04T22:21:33.447-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 45 of 77, length: 900 chars
+2026-05-04T22:21:33.447-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:33.447-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:33.746-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:33.746-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:33.746-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 45 dimension: 3072
+2026-05-04T22:21:33.746-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 46 of 77, length: 900 chars
+2026-05-04T22:21:33.746-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:33.746-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:34.061-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:34.061-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:34.061-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 46 dimension: 3072
+2026-05-04T22:21:34.061-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 47 of 77, length: 898 chars
+2026-05-04T22:21:34.061-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 898
+2026-05-04T22:21:34.061-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:34.361-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:34.361-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:34.361-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 47 dimension: 3072
+2026-05-04T22:21:34.361-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 48 of 77, length: 900 chars
+2026-05-04T22:21:34.361-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:34.361-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:34.676-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:34.676-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:34.676-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 48 dimension: 3072
+2026-05-04T22:21:34.676-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 49 of 77, length: 900 chars
+2026-05-04T22:21:34.676-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:34.676-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:34.977-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:34.977-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:34.977-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 49 dimension: 3072
+2026-05-04T22:21:34.977-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 50 of 77, length: 900 chars
+2026-05-04T22:21:34.977-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:34.977-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:35.193-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:35.193-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:35.193-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 50 dimension: 3072
+2026-05-04T22:21:35.193-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 51 of 77, length: 899 chars
+2026-05-04T22:21:35.193-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:35.193-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:35.434-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:35.435-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:35.435-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 51 dimension: 3072
+2026-05-04T22:21:35.435-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 52 of 77, length: 900 chars
+2026-05-04T22:21:35.435-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:35.435-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:35.696-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:35.696-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:35.696-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 52 dimension: 3072
+2026-05-04T22:21:35.696-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 53 of 77, length: 899 chars
+2026-05-04T22:21:35.696-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:35.696-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:35.932-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:35.938-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:35.938-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 53 dimension: 3072
+2026-05-04T22:21:35.938-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 54 of 77, length: 900 chars
+2026-05-04T22:21:35.938-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:35.938-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:36.198-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:36.198-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:36.198-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 54 dimension: 3072
+2026-05-04T22:21:36.198-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 55 of 77, length: 900 chars
+2026-05-04T22:21:36.198-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:36.198-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:36.403-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:36.419-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:36.419-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 55 dimension: 3072
+2026-05-04T22:21:36.419-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 56 of 77, length: 899 chars
+2026-05-04T22:21:36.419-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:36.419-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:36.616-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:36.617-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:36.617-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 56 dimension: 3072
+2026-05-04T22:21:36.617-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 57 of 77, length: 900 chars
+2026-05-04T22:21:36.618-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:36.618-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:36.805-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:36.805-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:36.805-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 57 dimension: 3072
+2026-05-04T22:21:36.805-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 58 of 77, length: 899 chars
+2026-05-04T22:21:36.805-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:36.805-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:37.032-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:37.033-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:37.033-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 58 dimension: 3072
+2026-05-04T22:21:37.033-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 59 of 77, length: 900 chars
+2026-05-04T22:21:37.033-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:37.033-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:37.233-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:37.233-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:37.233-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 59 dimension: 3072
+2026-05-04T22:21:37.233-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 60 of 77, length: 900 chars
+2026-05-04T22:21:37.233-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:37.233-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:37.426-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:37.426-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:37.426-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 60 dimension: 3072
+2026-05-04T22:21:37.426-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 61 of 77, length: 900 chars
+2026-05-04T22:21:37.426-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:37.426-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:37.741-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:37.741-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:37.741-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 61 dimension: 3072
+2026-05-04T22:21:37.741-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 62 of 77, length: 900 chars
+2026-05-04T22:21:37.741-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:37.741-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:38.052-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:38.052-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:38.052-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 62 dimension: 3072
+2026-05-04T22:21:38.052-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 63 of 77, length: 899 chars
+2026-05-04T22:21:38.052-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:38.052-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:38.252-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:38.252-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:38.252-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 63 dimension: 3072
+2026-05-04T22:21:38.252-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 64 of 77, length: 900 chars
+2026-05-04T22:21:38.252-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:38.252-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:38.454-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:38.454-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:38.454-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 64 dimension: 3072
+2026-05-04T22:21:38.454-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 65 of 77, length: 899 chars
+2026-05-04T22:21:38.454-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:38.454-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:38.657-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:38.657-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:38.657-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 65 dimension: 3072
+2026-05-04T22:21:38.657-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 66 of 77, length: 900 chars
+2026-05-04T22:21:38.657-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:38.657-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:38.874-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:38.874-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:38.874-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 66 dimension: 3072
+2026-05-04T22:21:38.874-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 67 of 77, length: 899 chars
+2026-05-04T22:21:38.874-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:38.874-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:39.185-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:39.185-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:39.185-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 67 dimension: 3072
+2026-05-04T22:21:39.185-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 68 of 77, length: 899 chars
+2026-05-04T22:21:39.185-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:39.185-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:39.488-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:39.488-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:39.488-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 68 dimension: 3072
+2026-05-04T22:21:39.488-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 69 of 77, length: 900 chars
+2026-05-04T22:21:39.488-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:39.488-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:39.788-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:39.788-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:39.788-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 69 dimension: 3072
+2026-05-04T22:21:39.788-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 70 of 77, length: 900 chars
+2026-05-04T22:21:39.788-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:39.788-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:39.973-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:39.973-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:39.973-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 70 dimension: 3072
+2026-05-04T22:21:39.973-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 71 of 77, length: 900 chars
+2026-05-04T22:21:39.973-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:39.973-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:40.191-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:40.191-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:40.191-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 71 dimension: 3072
+2026-05-04T22:21:40.191-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 72 of 77, length: 900 chars
+2026-05-04T22:21:40.191-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:40.191-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:40.398-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:40.398-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:40.398-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 72 dimension: 3072
+2026-05-04T22:21:40.398-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 73 of 77, length: 900 chars
+2026-05-04T22:21:40.398-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:40.398-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:40.618-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:40.618-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:40.618-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 73 dimension: 3072
+2026-05-04T22:21:40.618-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 74 of 77, length: 899 chars
+2026-05-04T22:21:40.618-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 899
+2026-05-04T22:21:40.618-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:40.799-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:40.799-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:40.799-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 74 dimension: 3072
+2026-05-04T22:21:40.799-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 75 of 77, length: 900 chars
+2026-05-04T22:21:40.799-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:40.799-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:41.049-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:41.049-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:41.049-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 75 dimension: 3072
+2026-05-04T22:21:41.049-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 76 of 77, length: 900 chars
+2026-05-04T22:21:41.049-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 900
+2026-05-04T22:21:41.049-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:41.316-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:41.316-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:41.316-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 76 dimension: 3072
+2026-05-04T22:21:41.316-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding text 77 of 77, length: 255 chars
+2026-05-04T22:21:41.316-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 255
+2026-05-04T22:21:41.316-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:21:41.635-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:21:41.636-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:21:41.636-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Embedding 77 dimension: 3072
+2026-05-04T22:21:41.636-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.r.service.GoogleGenerativeAiService  : Successfully embedded 77 texts
+2026-05-04T22:21:41.636-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Step 4 completed: Embeddings computed in 20067 ms
+2026-05-04T22:21:41.636-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Step 5: Storing chunks with embeddings
+2026-05-04T22:21:41.636-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [1] with embedding dimension: 3072
+2026-05-04T22:21:41.636-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [2] with embedding dimension: 3072
+2026-05-04T22:21:41.636-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [3] with embedding dimension: 3072
+2026-05-04T22:21:41.636-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [4] with embedding dimension: 3072
+2026-05-04T22:21:41.636-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [5] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [6] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [7] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [8] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [9] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [10] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [11] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [12] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [13] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [14] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [15] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [16] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [17] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [18] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [19] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [20] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [21] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [22] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [23] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [24] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [25] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [26] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [27] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [28] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [29] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [30] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [31] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [32] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [33] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [34] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [35] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [36] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [37] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [38] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [39] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [40] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [41] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [42] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [43] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [44] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [45] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [46] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [47] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [48] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [49] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [50] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [51] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [52] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [53] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [54] with embedding dimension: 3072
+2026-05-04T22:21:41.637-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [55] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [56] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [57] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [58] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [59] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [60] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [61] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [62] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [63] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [64] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [65] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [66] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [67] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [68] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [69] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [70] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [71] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [72] with embedding dimension: 3072
+2026-05-04T22:21:41.644-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [73] with embedding dimension: 3072
+2026-05-04T22:21:41.647-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [74] with embedding dimension: 3072
+2026-05-04T22:21:41.647-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [75] with embedding dimension: 3072
+2026-05-04T22:21:41.647-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [76] with embedding dimension: 3072
+2026-05-04T22:21:41.647-04:00 DEBUG 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Stored chunk [77] with embedding dimension: 3072
+2026-05-04T22:21:41.647-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Step 5 completed: All 77 chunks stored
+2026-05-04T22:21:41.647-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.ragsearch.service.DocumentService    : Ingestion complete in 31309 ms. Total chunks in system: 78
+2026-05-04T22:21:41.647-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.r.controller.DocumentController      : Successfully uploaded file: 2605.00340v1.pdf
+2026-05-04T22:21:41.647-04:00  INFO 26996 --- [http-nio-8080-exec-7] c.e.r.controller.DocumentController      : Upload complete. 1 file(s) processed
+2026-05-04T22:21:41.664-04:00  INFO 26996 --- [http-nio-8080-exec-9] c.e.r.controller.DocumentController      : Fetching document list
+2026-05-04T22:21:41.664-04:00 DEBUG 26996 --- [http-nio-8080-exec-9] c.e.ragsearch.service.DocumentService    : Listing 2 documents
+2026-05-04T22:21:41.664-04:00  INFO 26996 --- [http-nio-8080-exec-9] c.e.r.controller.DocumentController      : Returning 2 documents
+2026-05-04T22:26:30.335-04:00  INFO 26996 --- [http-nio-8080-exec-10] c.e.r.controller.QueryController         : Received query request
+2026-05-04T22:26:30.335-04:00  INFO 26996 --- [http-nio-8080-exec-10] c.e.r.controller.QueryController         : Processing query: 'Summarize RSDM in 200 words or less. 
+'
+2026-05-04T22:26:30.335-04:00  INFO 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Processing query: 'Summarize RSDM in 200 words or less. 
+'
+2026-05-04T22:26:30.335-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Total chunks available: 78
+2026-05-04T22:26:30.335-04:00  INFO 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Computing embedding for query
+2026-05-04T22:26:30.335-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : Calling embedContent API for text of length: 38
+2026-05-04T22:26:30.335-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : Received embedding with dimension: 3072
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Query embedding dimension: 3072
+2026-05-04T22:26:30.745-04:00  INFO 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Finding nearest chunks using cosine similarity
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5313718844928053
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6755822543648786
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6378156889324809
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6754829661472938
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.524020424941524
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6385779782476687
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.689148236762231
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.528193167030205
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.637673846532892
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6392214029647223
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.530305568058921
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5322877272302693
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5139859882449331
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5571275880273832
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6698422378253479
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.659211827132403
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5229284314571299
+2026-05-04T22:26:30.745-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5318811001317113
+2026-05-04T22:26:30.761-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.539566757645003
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5145434009967874
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6226347269660619
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6512188692305998
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5111020880445896
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5309775020234794
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5355308692006501
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.523665501563232
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5255834490214394
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.52967446033243
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6147688219775914
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6209342049651582
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5171158760437856
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5137079560166451
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.4967503633816468
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5081666241829346
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5062695130464506
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5135202796305448
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6318687007444888
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5215509915609141
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5509101679267913
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.561357104538531
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6513400651524617
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6332104847092799
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6777558690508464
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6780458619019508
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5991899806549299
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6656917371355945
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.530777897506321
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5394483291701293
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6426072841126754
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5154612135920128
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.49872466548672556
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5253990003580556
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5136971232441707
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6265824581940347
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6358627060996743
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5340881257818078
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5075568061561441
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5021910758925482
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5206788817161883
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.49327842901679203
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.595726211316582
+2026-05-04T22:26:30.762-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6241159809073499
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6485992569250452
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6786554236896108
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6654049703656021
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6650692051168904
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6620043965036453
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5277905405091395
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6957350957765661
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6511967852876948
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6669365929365563
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6692836648915207
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.4926843661396125
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.6241591771560129
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5372133619282102
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5198083150791984
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5147846402417552
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Chunk similarity score: 0.5431901717795753
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Selected chunk with similarity: 0.6957350957765661
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Selected chunk with similarity: 0.689148236762231
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Selected chunk with similarity: 0.6786554236896108
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Selected chunk with similarity: 0.6780458619019508
+2026-05-04T22:26:30.768-04:00  INFO 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Selected 4 nearest chunks
+2026-05-04T22:26:30.768-04:00  INFO 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Generating answer based on 4 context excerpts
+2026-05-04T22:26:30.768-04:00  INFO 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : Creating answer for query: 'Summarize RSDM in 200 words or less. 
+' using 4 context excerpts
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : Context [1] length: 899 chars
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : Context [2] length: 896 chars
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : Context [3] length: 899 chars
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : Context [4] length: 900 chars
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : Final prompt length: 3891 chars
+2026-05-04T22:26:30.768-04:00  INFO 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : Calling generateContent API with chat model: gemini-2.5-flash-lite
+2026-05-04T22:26:30.768-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : Making POST request to: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent
+2026-05-04T22:26:32.850-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : API response status: 200 OK
+2026-05-04T22:26:32.850-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : Chat response contains 1 candidates
+2026-05-04T22:26:32.850-04:00  INFO 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : Generated answer length: 1348 chars
+2026-05-04T22:26:32.850-04:00 DEBUG 26996 --- [http-nio-8080-exec-10] c.e.r.service.GoogleGenerativeAiService  : Generated answer: RSDM is defined as sound money for the AI ecosystem, acting as a consensus honest money in the AI era. It is a symbolic, weight-based currency that bridges physical assets and the AI world. Unlike cryptocurrencies that lack intrinsic value, RSDM is backed by precious metals, which are considered a global consensus on value and are not controlled by any single country. This provides it with intrinsic value, global neutrality, and long-term stable purchasing power, making it a secure currency for the AI world.
+
+RSDM integrates the value storage function of precious metals with high global liquidity through tokenization on blockchain technology. Each token is typically pegged 1:1 to a specific weight of precious metal, granting holders redemption rights. However, a key distinction of RSDM is its self-decay mechanism for metal weight, which aims to prevent it from evolving into credit-based currencies or facing collapse in the long term. This mechanism allows RSDM to surrender a portion of its value automatically.
+
+RSDM is distinct from traditional representative money, as its collateral is fully supervised by third-party institutions and is not used for risky investments, ensuring note holders can redeem their collateral. Potential issuance forms include a Digital RSDM Hardware Wallet with a secure chip for dual offline payments.
+2026-05-04T22:26:32.850-04:00  INFO 26996 --- [http-nio-8080-exec-10] c.e.ragsearch.service.DocumentService    : Answer generated with 1 source document(s)
+2026-05-04T22:26:32.850-04:00  INFO 26996 --- [http-nio-8080-exec-10] c.e.r.controller.QueryController         : Query processed successfully. Answer length: 1348 chars, sources: 1
