@@ -4,6 +4,7 @@ import com.example.ragsearch.model.DocumentChunk;
 import com.example.ragsearch.model.DocumentMetadata;
 import com.example.ragsearch.model.QueryResponse;
 import com.example.ragsearch.model.UploadResponse;
+import com.example.ragsearch.service.VectorStoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,29 +16,26 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 @Service
 public class DocumentService {
     private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
-    private final Map<String, DocumentMetadata> documents = new ConcurrentHashMap<>();
-    private final List<DocumentChunk> chunks = new CopyOnWriteArrayList<>();
     private final GoogleGenerativeAiService googleGenerativeAiService;
+    private final VectorStoreService vectorStoreService;
 
-    public DocumentService(GoogleGenerativeAiService googleGenerativeAiService) {
+    public DocumentService(GoogleGenerativeAiService googleGenerativeAiService,
+                           VectorStoreService vectorStoreService) {
         this.googleGenerativeAiService = googleGenerativeAiService;
+        this.vectorStoreService = vectorStoreService;
         logger.info("DocumentService initialized");
     }
 
     public List<DocumentMetadata> listDocuments() {
-        logger.debug("Listing {} documents", documents.size());
-        return new ArrayList<>(documents.values());
+        logger.debug("Listing documents from vector store");
+        return vectorStoreService.listDocuments();
     }
 
     public UploadResponse ingestFile(MultipartFile file) throws IOException {
@@ -58,8 +56,7 @@ public class DocumentService {
         logger.info("Step 2: Generating document ID and metadata");
         String documentId = UUID.randomUUID().toString();
         DocumentMetadata metadata = new DocumentMetadata(documentId, file.getOriginalFilename(), text.length());
-        documents.put(documentId, metadata);
-        logger.info("Step 2 completed: Document {} stored with ID: {}", file.getOriginalFilename(), documentId);
+        logger.info("Step 2 completed: Document {} created with ID: {}", file.getOriginalFilename(), documentId);
         
         logger.info("Step 3: Splitting text into chunks");
         List<String> chunkTexts = splitToChunks(text, 900, 200);
@@ -71,50 +68,38 @@ public class DocumentService {
         long embeddingEndTime = System.currentTimeMillis();
         logger.info("Step 4 completed: Embeddings computed in {} ms", (embeddingEndTime - embeddingStartTime));
         
-        logger.info("Step 5: Storing chunks with embeddings");
+        logger.info("Step 5: Storing document metadata and chunk embeddings to Supabase");
+        vectorStoreService.saveDocumentMetadata(metadata);
         for (int i = 0; i < chunkTexts.size(); i++) {
             String chunkId = UUID.randomUUID().toString();
             DocumentChunk chunk = new DocumentChunk(chunkId, documentId, chunkTexts.get(i), embeddings.get(i));
-            chunks.add(chunk);
+            vectorStoreService.saveChunk(chunk);
             if (embeddings.get(i) != null) {
                 logger.debug("Stored chunk [{}] with embedding dimension: {}", i + 1, embeddings.get(i).size());
             }
         }
-        logger.info("Step 5 completed: All {} chunks stored", chunkTexts.size());
+        logger.info("Step 5 completed: All {} chunks stored in Supabase", chunkTexts.size());
         
         long endTime = System.currentTimeMillis();
-        logger.info("Ingestion complete in {} ms. Total chunks in system: {}", (endTime - startTime), chunks.size());
+        logger.info("Ingestion complete in {} ms. Document and embeddings stored in Supabase", (endTime - startTime));
         return new UploadResponse(documentId, file.getOriginalFilename(), file.getSize());
     }
 
     public QueryResponse answerQuery(String query) {
         logger.info("Processing query: '{}'", query);
-        
-        if (chunks.isEmpty()) {
-            logger.warn("Query received but no documents uploaded yet");
-            return new QueryResponse("No documents have been uploaded yet.", List.of());
-        }
 
-        logger.debug("Total chunks available: {}", chunks.size());
-        
         logger.info("Computing embedding for query");
         List<Double> queryEmbedding = googleGenerativeAiService.embedText(query);
         if (queryEmbedding != null) {
             logger.debug("Query embedding dimension: {}", queryEmbedding.size());
         }
-        
-        logger.info("Finding nearest chunks using cosine similarity");
-        List<DocumentChunk> nearest = chunks.stream()
-                .map(chunk -> {
-                    double similarity = cosineSimilarity(queryEmbedding, chunk.getEmbedding());
-                    logger.debug("Chunk similarity score: {}", similarity);
-                    return Map.entry(chunk, similarity);
-                })
-                .sorted(Comparator.comparingDouble(Map.Entry<DocumentChunk, Double>::getValue).reversed())
-                .limit(4)
-                .peek(entry -> logger.debug("Selected chunk with similarity: {}", entry.getValue()))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+
+        logger.info("Finding nearest chunks using Supabase vector search");
+        List<DocumentChunk> nearest = vectorStoreService.searchNearest(queryEmbedding, 4);
+        if (nearest.isEmpty()) {
+            logger.warn("No matching chunks found in Supabase");
+            return new QueryResponse("No documents have been uploaded yet.", List.of());
+        }
 
         logger.info("Selected {} nearest chunks", nearest.size());
 
@@ -172,23 +157,4 @@ public class DocumentService {
         return chunks;
     }
 
-    private double cosineSimilarity(List<Double> a, List<Double> b) {
-        if (a == null || b == null || a.size() != b.size()) {
-            return -1.0;
-        }
-        double dot = 0.0;
-        double normA = 0.0;
-        double normB = 0.0;
-        for (int i = 0; i < a.size(); i++) {
-            double va = a.get(i);
-            double vb = b.get(i);
-            dot += va * vb;
-            normA += va * va;
-            normB += vb * vb;
-        }
-        if (normA == 0 || normB == 0) {
-            return -1.0;
-        }
-        return dot / (Math.sqrt(normA) * Math.sqrt(normB));
-    }
 }
