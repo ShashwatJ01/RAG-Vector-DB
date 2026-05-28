@@ -1,0 +1,99 @@
+.dropzone {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  margin: 18px 0;
+  border: 1px dashed #9fb0c4;
+  border-radius: 8px;
+  background: #f8fbfd;
+  padding: 28px;
+  text-align: center;
+}
+
+.file-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: fit-content;
+  border-color: #b9c6d6;
+  background: #ffffff;
+  color: #1e4f91;
+}
+
+.file-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.filter-row {
+  margin-bottom: 14px;
+}
+
+.filter-row button {
+  min-height: 32px;
+  border: 1px solid #d5dde7;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #536174;
+  padding: 6px 11px;
+  font-weight: 750;
+}
+
+.filter-row button.active {
+  border-color: #2563eb;
+  background: #eef5ff;
+  color: #1e4f91;
+}
+
+.bulk-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
+  border: 1px solid #bcd4ff;
+  border-radius: 8px;
+  background: #eef5ff;
+  padding: 12px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+th,
+td {
+  border-bottom: 1px solid #e1e7ee;
+  padding: 12px 10px;
+  text-align: left;
+}
+
+th {
+  color: #566579;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.table-actions button {
+  border: 0;
+  background: transparent;
+  color: #1e4f91;
+  padding: 0;
+  font-weight: 750;
+}
+
+table input {
+  width: auto;
+}
