@@ -1,24 +1,29 @@
 # RAG With Supabase Vector DB
 
-This project is a full-stack RAG application. It lets a user upload PDF or text files, converts the document text into embeddings using Google's Gemini API, stores those embeddings in Supabase Postgres with pgvector, and answers questions by retrieving the most relevant document chunks.
+This project is a full-stack RAG application. It lets a user upload PDF or text files, queues those files for asynchronous ingestion, converts document text into embeddings using Google's Gemini API, stores those embeddings in Supabase Postgres with pgvector, and answers questions by retrieving the most relevant indexed document chunks.
 
 The application has two main parts:
 
-- `backend`: Spring Boot API for file upload, text extraction, embeddings, vector storage, vector search, and answer generation.
-- `frontend`: React + Vite UI for uploading documents and asking questions.
+- `backend`: Spring Boot API for file upload, async ingestion jobs, background text extraction, embeddings, vector storage, vector search, and answer generation.
+- `frontend`: React + Vite UI for uploading documents, watching ingestion status, and asking questions.
 
 ## What This Project Does
 
 1. The user selects one or more files in the frontend.
 2. The frontend sends those files to the backend at `POST /api/documents/upload`.
-3. The backend extracts readable text from PDFs or text files.
-4. The text is split into overlapping chunks.
-5. Each chunk is sent to Gemini to create a 1536-dimensional embedding.
-6. The document metadata is stored in Supabase table `documents`.
-7. Each chunk and its vector embedding are stored in Supabase table `document_chunks`.
-8. When the user asks a question, the backend embeds the question.
-9. Supabase pgvector finds the closest chunks using cosine distance.
-10. Gemini receives the retrieved chunks as context and generates a grounded answer.
+3. The backend reads the file bytes, computes a SHA-256 file hash, and checks for duplicate uploads in the same workspace.
+4. The backend stores document metadata in Supabase table `documents` with `document_status = QUEUED`.
+5. The backend stores an ingestion job in Supabase table `ingestion_jobs`.
+6. The upload request returns quickly, before extraction and embedding are complete.
+7. A scheduled background worker claims queued jobs and marks them `PROCESSING`.
+8. The worker extracts readable text from PDFs or text files.
+9. The worker splits text into overlapping chunks.
+10. Each chunk is sent to Gemini to create a 1536-dimensional embedding.
+11. Each chunk and its vector embedding are stored in Supabase table `document_chunks`.
+12. The document and job are marked `INDEXED`, or marked `FAILED` after retries are exhausted.
+13. When the user asks a question, the backend embeds the question.
+14. Supabase pgvector searches only `INDEXED` documents using cosine distance.
+15. Gemini receives the retrieved chunks as context and generates a grounded answer.
 
 ## Tech Stack
 
@@ -46,6 +51,7 @@ The backend dependencies are defined in `backend/pom.xml`. Important dependencie
 ```text
 RAG with Vector DB/
 |-- backend/
+|   |-- sql/
 |   |-- src/main/java/com/example/ragsearch/
 |   |   |-- controller/
 |   |   |-- model/
@@ -73,16 +79,26 @@ Do not use the Supabase anon key or service role key as the database password. T
 
 ## Supabase Setup
 
-In Supabase, open SQL Editor and run this schema:
+In Supabase, open SQL Editor and run this base schema:
 
 ```sql
 create extension if not exists vector with schema extensions;
 
 create table if not exists documents (
   id text primary key,
+  workspace_id text null,
   file_name text not null,
-  length bigint not null,
-  created_at timestamptz not null default now()
+  length bigint not null default 0,
+  embedding_model text null,
+  embedding_dimension integer null,
+  document_status text not null default 'INDEXED',
+  file_hash text null,
+  error_message text null,
+  uploaded_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  indexed_at timestamptz null,
+  constraint documents_document_status_check
+    check (document_status in ('QUEUED', 'PROCESSING', 'INDEXED', 'FAILED'))
 );
 
 create table if not exists document_chunks (
@@ -96,7 +112,48 @@ create table if not exists document_chunks (
 create index if not exists document_chunks_embedding_hnsw_idx
 on document_chunks
 using hnsw (embedding vector_cosine_ops);
+
+create unique index if not exists documents_workspace_file_hash_uidx
+on documents (coalesce(workspace_id, ''), file_hash)
+where file_hash is not null;
+
+create table if not exists ingestion_jobs (
+  id text primary key,
+  document_id text not null references documents(id) on delete cascade,
+  workspace_id text null,
+  file_name text not null,
+  file_hash text not null,
+  content_type text null,
+  source_size bigint not null default 0,
+  payload bytea not null,
+  status text not null default 'QUEUED',
+  retry_count integer not null default 0,
+  max_retries integer not null default 3,
+  error_message text null,
+  available_at timestamptz not null default now(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  started_at timestamptz null,
+  finished_at timestamptz null,
+  constraint ingestion_jobs_status_check
+    check (status in ('QUEUED', 'PROCESSING', 'INDEXED', 'FAILED'))
+);
+
+create index if not exists ingestion_jobs_status_available_idx
+on ingestion_jobs (status, available_at, created_at);
+
+create index if not exists ingestion_jobs_document_id_idx
+on ingestion_jobs (document_id);
+
+create unique index if not exists ingestion_jobs_active_document_uidx
+on ingestion_jobs (document_id)
+where status in ('QUEUED', 'PROCESSING');
+
+create index if not exists ingestion_jobs_file_hash_idx
+on ingestion_jobs (file_hash);
 ```
+
+The repository also includes `backend/sql/workspaces_migration.sql`. Run that file too. It creates workspace support and applies the async ingestion columns/indexes in an idempotent way, so it is safe to run after the base schema.
 
 The `1536` dimension must match the backend property:
 
@@ -132,7 +189,7 @@ $env:SUPABASE_DB_USER="postgres"
 $env:SUPABASE_DB_PASSWORD="your-supabase-db-password"
 ```
 
-The project reads these values from `application.properties`, lines 9-12.
+The project reads these values from `backend/src/main/resources/application.properties`.
 
 ## Backend Configuration
 
@@ -149,6 +206,12 @@ spring.datasource.url=${SUPABASE_DB_URL:}
 spring.datasource.username=${SUPABASE_DB_USER:}
 spring.datasource.password=${SUPABASE_DB_PASSWORD:}
 spring.datasource.driver-class-name=org.postgresql.Driver
+
+ingestion.worker.enabled=true
+ingestion.worker.poll-ms=2000
+ingestion.worker.max-jobs-per-poll=1
+ingestion.worker.max-retries=3
+ingestion.worker.retry-backoff-seconds=15
 ```
 
 Summary:
@@ -157,7 +220,8 @@ Summary:
 - Lines 3-7 configure Gemini.
 - Lines 9-12 configure Supabase Postgres.
 - Line 13 limits Hikari connection pool size.
-- Lines 15-17 configure backend logging.
+- The `ingestion.worker.*` settings control the background worker that processes queued uploads.
+- The logging settings write backend logs to `backend/logs/rag-search.log`.
 
 ## Running The Project
 
@@ -203,12 +267,14 @@ Before running the backend, check that your machine can reach the Supabase poole
 Test-NetConnection aws-1-us-east-1.pooler.supabase.com -Port 5432
 ```
 
-If this succeeds, your network can reach Supabase. If it fails, the backend will not be able to upload documents because it cannot store vectors.
+If this succeeds, your network can reach Supabase. If it fails, the backend may accept an upload but the ingestion worker will not be able to persist document status, jobs, chunks, or vectors.
 
 After uploading a file, verify the data in Supabase:
 
 ```sql
 select count(*) from documents;
+select document_status, count(*) from documents group by document_status;
+select status, retry_count, error_message from ingestion_jobs order by created_at desc limit 5;
 select count(*) from document_chunks;
 select id, vector_dims(embedding) from document_chunks limit 5;
 ```
@@ -233,7 +299,24 @@ Expected form field:
 files
 ```
 
-The upload controller receives this request in `DocumentController.java`, lines 34-49. It loops through the uploaded files, passes each one to `DocumentService.ingestFile`, and returns the uploaded document details.
+The upload controller receives this request in `DocumentController.java`. It loops through the uploaded files, passes each one to `DocumentService.ingestFile`, and returns queued document details.
+
+Example response:
+
+```json
+[
+  {
+    "documentId": "4bb8e2d5-9f12-3c4d-a9ef-5a2f9c8e50a1",
+    "fileName": "contract.pdf",
+    "size": 123456,
+    "status": "QUEUED",
+    "jobId": "a6b3c8c2-7dd6-4fc0-8f4d-73b8b719c7ad",
+    "duplicate": false
+  }
+]
+```
+
+Important: this endpoint no longer means the document is already searchable. It means the upload was accepted and queued for indexing.
 
 ### List Documents
 
@@ -241,7 +324,33 @@ The upload controller receives this request in `DocumentController.java`, lines 
 GET /api/documents
 ```
 
-This is handled in `DocumentController.java`, lines 69-74. It asks the service for stored document metadata and returns it to the frontend.
+This is handled in `DocumentController.java`. It asks the service for stored document metadata and returns it to the frontend. Each document includes `status`, which maps to the database `document_status`.
+
+### Check Document Status
+
+```http
+GET /api/documents/{documentId}/status
+```
+
+Example response:
+
+```json
+{
+  "documentId": "4bb8e2d5-9f12-3c4d-a9ef-5a2f9c8e50a1",
+  "fileName": "contract.pdf",
+  "status": "PROCESSING",
+  "jobId": "a6b3c8c2-7dd6-4fc0-8f4d-73b8b719c7ad",
+  "retryCount": 1,
+  "maxRetries": 3,
+  "errorMessage": null,
+  "createdAt": "2026-06-06T10:15:30Z",
+  "updatedAt": "2026-06-06T10:15:40Z",
+  "startedAt": "2026-06-06T10:15:38Z",
+  "finishedAt": null
+}
+```
+
+Use this endpoint when you want exact job progress for one document.
 
 ### Ask A Question
 
@@ -258,20 +367,48 @@ Example body:
 }
 ```
 
-This is handled in `QueryController.java`, lines 27-39. It validates that the query is not blank, calls `DocumentService.answerQuery`, and returns the generated answer and source document IDs.
+This is handled in `QueryController.java`. It validates that the query is not blank, calls `DocumentService.answerQuery`, and returns the generated answer and source document IDs. Vector search only uses documents where `document_status = 'INDEXED'`.
 
 ## How Upload Works In Code
 
-The main upload flow is in `DocumentService.java`.
+The upload entry point is `DocumentService.ingestFile`.
 
-- Lines 41-45 validate that the uploaded file is not empty.
-- Lines 49-54 extract text and reject unreadable files.
-- Lines 56-59 create a new document ID and metadata object.
-- Lines 61-63 split the document into chunks.
-- Lines 65-69 send chunks to Gemini and receive embeddings.
-- Lines 71-80 save the document metadata and chunk embeddings to Supabase.
-- Lines 122-138 extract text from PDF files using PDFBox or read text files as UTF-8.
-- Lines 140-157 split the text into overlapping chunks with a max chunk size of `900` characters and overlap of `200` characters.
+The upload request now does lightweight intake work:
+
+1. Validate that the file is not empty.
+2. Read the uploaded bytes.
+3. Compute a SHA-256 hash from the bytes.
+4. Look for an existing document with the same workspace and hash.
+5. If the file already exists and is not failed, return the existing document instead of creating another embedding job.
+6. If the file is new, create or update a row in `documents` with `document_status = QUEUED`.
+7. Create a row in `ingestion_jobs` with `status = QUEUED`.
+8. Return the queued document response to the frontend.
+
+The upload request intentionally does not extract text, chunk text, call Gemini embeddings, or write vectors. That heavier work happens in the background worker.
+
+The document ID is deterministic for new files. It is derived from `workspaceId + fileHash`, which helps make repeated uploads idempotent.
+
+## How Async Ingestion Works In Code
+
+The background worker is `DocumentIngestionWorker.java`.
+
+The worker runs on a schedule controlled by `ingestion.worker.poll-ms`.
+
+The worker flow is:
+
+1. Call `IngestionJobRepository.claimNextJob`.
+2. Claim one queued job where `status = QUEUED` and `available_at <= now()`.
+3. Mark the job and document as `PROCESSING`.
+4. Extract text from the job payload.
+5. Split text into overlapping chunks with a max chunk size of `900` characters and overlap of `200` characters.
+6. Send chunks to Gemini for embeddings.
+7. Delete any old chunks for the document.
+8. Store the new chunks and vectors in `document_chunks`.
+9. Mark the document and job as `INDEXED`.
+
+The claim query uses Postgres `FOR UPDATE SKIP LOCKED`. That matters when more than one backend instance is running, because it prevents two workers from processing the same job at the same time.
+
+If processing fails, the worker increments `retry_count`, stores `error_message`, and requeues the job by setting a future `available_at`. If the retry limit is reached, the job and document are marked `FAILED`.
 
 ## How Embeddings And Answers Work
 
@@ -290,14 +427,17 @@ The Gemini integration is in `GoogleGenerativeAiService.java`.
 
 The Supabase/pgvector logic is in `VectorStoreService.java`.
 
-- Lines 21-25 inject `JdbcTemplate` and the configured vector dimension.
-- Lines 27-31 insert document metadata into the `documents` table.
-- Lines 34-39 insert a chunk into `document_chunks`, casting the string vector literal to `vector`.
-- Lines 42-51 list stored documents from Supabase.
-- Lines 54-68 search nearest chunks using `ORDER BY embedding <=> ?::vector LIMIT ?`.
-- Lines 71-80 convert Java `List<Double>` embeddings into pgvector literal format like `[0.1,0.2,0.3]`.
+- `saveDocumentMetadata` inserts or updates the `documents` row, including `document_status`, `file_hash`, embedding model, and embedding dimension.
+- `findDocumentByFileHash` supports idempotency by checking whether a workspace already has the same uploaded file.
+- `updateDocumentStatus` changes document state between `QUEUED`, `PROCESSING`, `INDEXED`, and `FAILED`.
+- `markDocumentIndexed` records successful indexing and clears any previous error message.
+- `deleteDocumentChunks` removes stale chunks before a retry or reprocess writes fresh vectors.
+- `saveChunk` inserts a chunk into `document_chunks`, casting the string vector literal to `vector`.
+- `searchNearest` searches chunks using `ORDER BY embedding <=> ?::vector LIMIT ?`.
+- Search filters to `document_status = 'INDEXED'`, so queued, processing, or failed documents are not used for answers.
+- `toVectorLiteral` converts Java `List<Double>` embeddings into pgvector literal format like `[0.1,0.2,0.3]`.
 
-If Supabase reports that type `vector` does not exist, change the casts in `VectorStoreService.java` lines 38 and 59 from:
+If Supabase reports that type `vector` does not exist, change the casts in `VectorStoreService.java` from:
 
 ```sql
 ?::vector
@@ -315,14 +455,31 @@ This depends on how the `vector` extension is exposed in your Supabase database.
 
 The main frontend logic is in `frontend/src/App.jsx`.
 
-- Lines 4-9 define React state for files, documents, query, answer, loading, and sources.
-- Lines 15-36 upload selected files to `/api/documents/upload`.
-- Lines 38-43 fetch stored document metadata from `/api/documents`.
-- Lines 45-67 send the user's question to `/api/query`.
-- Lines 76-83 render the upload UI.
-- Lines 85-94 render the document list.
-- Lines 96-102 render the question box.
-- Lines 104-117 render the answer and source IDs.
+- It uploads selected files to `/api/documents/upload`.
+- It fetches stored document metadata from `/api/documents`.
+- It maps backend document statuses into UI labels through `frontend/src/utils/documents.js`.
+- It watches for documents with `Queued` or `Processing` status.
+- While any document is queued or processing, it periodically refreshes document metadata so the UI moves from `Queued` to `Processing` to `Indexed`.
+- It sends the user's question to `/api/query`.
+- It renders source citations returned by the backend.
+
+Backend status values:
+
+```text
+QUEUED
+PROCESSING
+INDEXED
+FAILED
+```
+
+Frontend labels:
+
+```text
+Queued
+Processing
+Indexed
+Failed
+```
 
 The frontend dev server is configured in `frontend/vite.config.js`:
 
@@ -332,7 +489,7 @@ The frontend dev server is configured in `frontend/vite.config.js`:
 ## Normal End-To-End Test
 
 1. Start Supabase project.
-2. Run the SQL schema in Supabase.
+2. Run the SQL schema in Supabase, then run `backend/sql/workspaces_migration.sql`.
 3. Confirm the pooler host works:
 
 ```powershell
@@ -343,15 +500,28 @@ Test-NetConnection aws-1-us-east-1.pooler.supabase.com -Port 5432
 5. Start frontend with `npm run dev`.
 6. Open `http://localhost:3000`.
 7. Upload a small PDF or text file.
-8. Check Supabase tables:
+8. Watch the document move through `Queued`, `Processing`, and `Indexed`.
+9. Check Supabase tables:
 
 ```sql
-select * from documents order by created_at desc limit 5;
-select id, document_id, vector_dims(embedding) from document_chunks order by created_at desc limit 5;
+select id, file_name, document_status, error_message
+from documents
+order by uploaded_at desc
+limit 5;
+
+select document_id, status, retry_count, error_message
+from ingestion_jobs
+order by created_at desc
+limit 5;
+
+select id, document_id, vector_dims(embedding)
+from document_chunks
+order by created_at desc
+limit 5;
 ```
 
-9. Ask a question about the uploaded file.
-10. Confirm the answer is grounded in the document content.
+10. Ask a question about the uploaded file after it is `Indexed`.
+11. Confirm the answer is grounded in the document content.
 
 ## Common Problems
 
@@ -393,7 +563,7 @@ Make sure all three values are aligned:
 - Backend config: `google.embedding.output-dimensionality=1536`
 - Gemini response: logs should say `Received embedding with dimension: 1536`
 
-### Upload succeeds in Gemini but fails in Supabase
+### Document stays Queued
 
 Check backend logs:
 
@@ -402,7 +572,50 @@ cd "D:\Projects\RAG with Vector DB\backend"
 Get-Content .\logs\rag-search.log -Wait
 ```
 
-If the log reaches `Step 5: Storing document metadata and chunk embeddings to Supabase`, Gemini worked and the issue is on the database side.
+Then check the job row:
+
+```sql
+select id, document_id, status, retry_count, error_message, available_at, started_at, finished_at
+from ingestion_jobs
+order by created_at desc
+limit 5;
+```
+
+Common causes:
+
+- The backend is not running, so the scheduled worker is not polling.
+- `ingestion.worker.enabled=false`.
+- `available_at` is in the future because the job is waiting for a retry.
+- The `ingestion_jobs` table or indexes were not created.
+
+### Document becomes Failed
+
+Check the stored error:
+
+```sql
+select id, file_name, document_status, error_message
+from documents
+where document_status = 'FAILED'
+order by uploaded_at desc;
+```
+
+Then check the latest job:
+
+```sql
+select id, document_id, status, retry_count, max_retries, error_message
+from ingestion_jobs
+where document_id = 'YOUR_DOCUMENT_ID'
+order by created_at desc
+limit 1;
+```
+
+Common causes:
+
+- The file has no readable text.
+- The Google API key is missing or invalid.
+- The Gemini embedding API returned an error.
+- The Supabase vector type is not available as `vector`.
+- The embedding dimension does not match the `document_chunks.embedding` column.
 
 ## Build And Test Commands
 
@@ -438,4 +651,3 @@ Do not commit real secrets:
 - Supabase service role key
 
 Use environment variables for local development. If a real database password was committed or pasted into a file, rotate the password in Supabase.
-
