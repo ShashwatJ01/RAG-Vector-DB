@@ -1,0 +1,251 @@
+.ask-grid {
+  display: grid;
+  grid-template-columns: minmax(230px, 0.78fr) minmax(360px, 1.45fr) minmax(260px, 0.9fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.selector-panel,
+.evidence-panel {
+  position: sticky;
+  top: 20px;
+  display: grid;
+  gap: 14px;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 9px 0;
+}
+
+.check-row input {
+  width: auto;
+}
+
+.scope-segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-muted);
+  padding: 4px;
+}
+
+.scope-segmented button {
+  min-height: 34px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.scope-segmented button.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 8px rgba(28, 39, 50, 0.08);
+}
+
+.document-picker {
+  margin-top: 18px;
+}
+
+.document-picker h4,
+.evidence-panel h4 {
+  margin-bottom: 10px;
+}
+
+.selected-summary {
+  margin-top: 16px;
+  border-radius: 8px;
+  background: var(--surface-muted);
+  color: var(--ink-soft);
+  padding: 12px;
+  font-weight: 750;
+}
+
+.scope-note {
+  display: grid;
+  gap: 2px;
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.scope-note strong {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+}
+
+.scope-note span {
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.document-choice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  border-bottom: 1px solid var(--line);
+  padding: 8px 0;
+}
+
+.document-choice span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.document-choice small {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
+.chat-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.prompt-block {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-muted);
+  padding: 14px;
+}
+
+.prompt-chip {
+  margin: 5px 6px 0 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  padding: 7px 10px;
+}
+
+.question-box textarea {
+  min-height: 140px;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.ask-command-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.ask-command-row span {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.linear-loader {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #f0dfbb;
+}
+
+.linear-loader::after {
+  display: block;
+  width: 45%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  content: "";
+  animation: loading-bar 1s infinite ease-in-out;
+}
+
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(230%);
+  }
+}
+
+.answer-card {
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 16px;
+}
+
+.answer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.answer-text {
+  color: var(--ink-soft);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.citations {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.citation-card {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 12px;
+  text-align: left;
+}
+
+.citation-card.active {
+  border-color: var(--accent);
+  background: #fff7e5;
+}
+
+.citation-card small,
+.citation-card span {
+  color: var(--muted);
+}
+
+.citation-card p,
+.source-text {
+  margin: 4px 0 0;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.source-text {
+  border-left: 3px solid var(--accent);
+  background: var(--surface-muted);
+  padding: 12px;
+}
+
+.empty-inspector {
+  display: grid;
+  gap: 4px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface-muted);
+  padding: 14px;
+}
+
+.evidence-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  padding: 9px 0;
+}

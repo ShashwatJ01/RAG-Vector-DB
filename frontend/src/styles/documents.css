@@ -1,0 +1,139 @@
+.dropzone {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  margin: 18px 0;
+  border: 1px dashed var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface-muted);
+  padding: 18px;
+  text-align: left;
+}
+
+.dropzone strong,
+.dropzone span,
+.dropzone small {
+  display: block;
+}
+
+.dropzone span {
+  margin-top: 4px;
+  color: var(--ink-soft);
+}
+
+.dropzone small {
+  margin-top: 6px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.upload-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.pending-files {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 3px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.pending-files span {
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: fit-content;
+  border-color: var(--line-strong);
+  background: var(--surface);
+  color: var(--cobalt);
+}
+
+.file-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.filter-row {
+  margin-bottom: 14px;
+}
+
+.filter-row button {
+  min-height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  padding: 6px 11px;
+  font-weight: 750;
+}
+
+.filter-row button.active {
+  border-color: var(--cobalt);
+  background: var(--cobalt-soft);
+  color: var(--cobalt);
+}
+
+.bulk-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
+  border: 1px solid #bcd4ff;
+  border-radius: 8px;
+  background: var(--cobalt-soft);
+  padding: 12px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  padding: 12px 10px;
+  text-align: left;
+}
+
+th {
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.table-actions button {
+  border: 0;
+  background: transparent;
+  color: var(--cobalt);
+  padding: 0;
+  font-weight: 750;
+}
+
+table input {
+  width: auto;
+}

@@ -1,0 +1,211 @@
+.toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 180px 180px;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.workspace-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+}
+
+.workspace-card h3 {
+  margin: 0;
+}
+
+.workspace-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.knowledge-selector {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin: 0;
+  padding: 14px;
+}
+
+.knowledge-selector legend {
+  color: var(--ink);
+  font-weight: 800;
+  padding: 0 6px;
+}
+
+.workspace-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(210px, 260px);
+  gap: 20px;
+  padding: 18px;
+}
+
+.workspace-identity {
+  display: grid;
+  gap: 12px;
+}
+
+.workspace-identity .card-topline {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.workspace-header h2 {
+  font-size: clamp(1.45rem, 2vw, 2.2rem);
+}
+
+.workspace-header p {
+  max-width: 76ch;
+  margin: 0;
+  line-height: 1.55;
+}
+
+.workspace-stat-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(92px, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--line);
+}
+
+.workspace-stat-strip dl {
+  margin: 0;
+  background: var(--surface-muted);
+  padding: 11px 12px;
+}
+
+.workspace-stat-strip dd {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+}
+
+.workspace-command-panel {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-muted);
+  padding: 14px;
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--line);
+}
+
+.tabs button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  min-height: 40px;
+  padding: 10px 14px;
+  font-weight: 750;
+}
+
+.tabs button.active {
+  border-bottom: 3px solid var(--accent);
+  color: var(--ink);
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.metric-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.metric-card strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.85rem;
+}
+
+.quick-actions,
+.activity-card {
+  grid-column: span 2;
+}
+
+.activity-card {
+  grid-column: span 3;
+}
+
+.activity-card ul {
+  margin: 12px 0 0;
+  padding-left: 20px;
+  color: var(--ink-soft);
+}
+
+.quick-actions div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.compact-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.compact-list article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 0;
+}
+
+.compact-list article:last-child {
+  border-bottom: 0;
+}
+
+.compact-list span {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.advanced-options {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-muted);
+  padding: 12px;
+}
+
+.advanced-options summary {
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.advanced-options .knowledge-selector {
+  margin-top: 12px;
+  background: var(--surface);
+}
