@@ -1,5 +1,7 @@
 # RAG With Supabase Vector DB
 
+## Test upload
+
 This project is a full-stack RAG application. It lets a user upload PDF or text files, queues those files for asynchronous ingestion, converts document text into embeddings using Google's Gemini API, stores those embeddings in Supabase Postgres with pgvector, and answers questions by retrieving the most relevant indexed document chunks.
 
 The application has two main parts:
@@ -326,7 +328,7 @@ GET /api/documents
 
 This is handled in `DocumentController.java`. It asks the service for stored document metadata and returns it to the frontend. Each document includes `status`, which maps to the database `document_status`.
 
-### Check Document Status
+### Updated Check Document Status
 
 ```http
 GET /api/documents/{documentId}/status
