@@ -23,9 +23,11 @@ The application has two main parts:
 10. Each chunk is sent to Gemini to create a 1536-dimensional embedding.
 11. Each chunk and its vector embedding are stored in Supabase table `document_chunks`.
 12. The document and job are marked `INDEXED`, or marked `FAILED` after retries are exhausted.
-13. When the user asks a question, the backend embeds the question.
-14. Supabase pgvector searches only `INDEXED` documents using cosine distance.
-15. Gemini receives the retrieved chunks as context and generates a grounded answer.
+13. When the user asks a question, the frontend sends the query, source scope, retrieval mode, and optional hybrid weights.
+14. Semantic mode uses Supabase pgvector cosine search over `INDEXED` chunks.
+15. Keyword mode uses Postgres full-text search over a generated `tsvector` chunk column.
+16. Hybrid mode combines keyword rank and vector rank with reciprocal rank fusion, then returns the fused top chunks.
+17. Gemini receives the retrieved chunks as context and generates a grounded answer.
 
 ## Tech Stack
 
@@ -155,7 +157,107 @@ create index if not exists ingestion_jobs_file_hash_idx
 on ingestion_jobs (file_hash);
 ```
 
-The repository also includes `backend/sql/workspaces_migration.sql`. Run that file too. It creates workspace support and applies the async ingestion columns/indexes in an idempotent way, so it is safe to run after the base schema.
+The repository also includes `backend/sql/workspaces_migration.sql`. Run that file too. It creates workspace support, applies the async ingestion columns/indexes, and adds the hybrid search database objects in an idempotent way, so it is safe to run after the base schema.
+
+Hybrid search adds these Supabase objects:
+
+```sql
+alter table public.document_chunks
+add column if not exists content_search tsvector
+generated always as (to_tsvector('english', coalesce(content, ''))) stored;
+
+create index if not exists document_chunks_content_search_gin_idx
+on public.document_chunks
+using gin (content_search);
+
+create or replace function public.hybrid_search_document_chunks(
+  query_text text,
+  query_embedding extensions.vector(1536),
+  match_count integer,
+  workspace_filter text default null,
+  document_filter text[] default '{}'::text[],
+  semantic_weight double precision default 1,
+  keyword_weight double precision default 1,
+  rrf_k integer default 50
+)
+returns table (
+  id text,
+  document_id text,
+  file_name text,
+  content text,
+  relevance_score double precision,
+  semantic_rank bigint,
+  keyword_rank bigint
+)
+language sql
+stable
+as $$
+with query_terms as (
+  select websearch_to_tsquery('english', query_text) as query
+),
+filtered_chunks as (
+  select
+    dc.id,
+    dc.document_id,
+    d.file_name,
+    dc.content,
+    dc.embedding,
+    dc.content_search
+  from public.document_chunks dc
+  join public.documents d on d.id = dc.document_id
+  where d.document_status = 'INDEXED'
+    and (workspace_filter is null or d.workspace_id = workspace_filter)
+    and (cardinality(document_filter) = 0 or dc.document_id = any(document_filter))
+),
+semantic_search as (
+  select
+    id,
+    row_number() over (order by embedding <=> query_embedding) as rank_ix
+  from filtered_chunks
+  order by embedding <=> query_embedding
+  limit greatest(match_count * 4, 20)
+),
+keyword_search as (
+  select
+    fc.id,
+    row_number() over (order by ts_rank_cd(fc.content_search, qt.query, 32) desc) as rank_ix
+  from filtered_chunks fc
+  cross join query_terms qt
+  where fc.content_search @@ qt.query
+  order by ts_rank_cd(fc.content_search, qt.query, 32) desc
+  limit greatest(match_count * 4, 20)
+),
+fused as (
+  select
+    fc.id,
+    fc.document_id,
+    fc.file_name,
+    fc.content,
+    ss.rank_ix as semantic_rank,
+    ks.rank_ix as keyword_rank,
+    coalesce(1.0::double precision / (rrf_k + ss.rank_ix), 0.0) * semantic_weight
+      + coalesce(1.0::double precision / (rrf_k + ks.rank_ix), 0.0) * keyword_weight as raw_score
+  from filtered_chunks fc
+  left join semantic_search ss on ss.id = fc.id
+  left join keyword_search ks on ks.id = fc.id
+  where ss.id is not null or ks.id is not null
+)
+select
+  id,
+  document_id,
+  file_name,
+  content,
+  case
+    when semantic_weight + keyword_weight <= 0 then 0
+    else least(raw_score / ((semantic_weight + keyword_weight) / (rrf_k + 1)), 1.0)
+  end as relevance_score,
+  semantic_rank,
+  keyword_rank
+from fused
+order by raw_score desc
+limit least(match_count, 30);
+$$;
+```
 
 The `1536` dimension must match the backend property:
 
@@ -365,11 +467,22 @@ Example body:
 
 ```json
 {
-  "query": "What does this document say about pricing?"
+  "query": "What does this document say about pricing?",
+  "searchMode": "hybrid",
+  "semanticWeight": 1,
+  "keywordWeight": 1
 }
 ```
 
-This is handled in `QueryController.java`. It validates that the query is not blank, calls `DocumentService.answerQuery`, and returns the generated answer and source document IDs. Vector search only uses documents where `document_status = 'INDEXED'`.
+This is handled in `QueryController.java`. It validates that the query is not blank, parses `searchMode`, calls `DocumentService.answerQuery`, and returns the generated answer and source document IDs. Search only uses documents where `document_status = 'INDEXED'`.
+
+Supported `searchMode` values:
+
+```text
+semantic
+keyword
+hybrid
+```
 
 ## How Upload Works In Code
 
@@ -436,6 +549,9 @@ The Supabase/pgvector logic is in `VectorStoreService.java`.
 - `deleteDocumentChunks` removes stale chunks before a retry or reprocess writes fresh vectors.
 - `saveChunk` inserts a chunk into `document_chunks`, casting the string vector literal to `vector`.
 - `searchNearest` searches chunks using `ORDER BY embedding <=> ?::vector LIMIT ?`.
+- `searchKeyword` searches the generated `document_chunks.content_search` column with `websearch_to_tsquery`.
+- `searchHybrid` calls `public.hybrid_search_document_chunks`, which uses reciprocal rank fusion over semantic and keyword rank lists.
+- `semanticWeight` and `keywordWeight` let the caller bias hybrid retrieval toward meaning or exact terms.
 - Search filters to `document_status = 'INDEXED'`, so queued, processing, or failed documents are not used for answers.
 - `toVectorLiteral` converts Java `List<Double>` embeddings into pgvector literal format like `[0.1,0.2,0.3]`.
 
@@ -453,6 +569,74 @@ to:
 
 This depends on how the `vector` extension is exposed in your Supabase database.
 
+## How Hybrid Search Was Added
+
+The implementation follows the Supabase hybrid search pattern: run semantic search and full-text search separately, assign each result a rank, then combine those ranks with reciprocal rank fusion.
+
+Database changes:
+
+1. `document_chunks.content_search` is a generated `tsvector` column built from chunk `content`.
+2. `document_chunks_content_search_gin_idx` is a GIN index so keyword lookup can stay fast as chunks grow.
+3. `public.hybrid_search_document_chunks` accepts `query_text`, `query_embedding`, `match_count`, optional workspace/document filters, `semantic_weight`, `keyword_weight`, and `rrf_k`.
+4. The SQL function builds a semantic rank list with `embedding <=> query_embedding`.
+5. The SQL function builds a keyword rank list with `content_search @@ websearch_to_tsquery('english', query_text)`.
+6. The final query scores each chunk with weighted reciprocal rank fusion:
+
+```text
+semantic_weight / (rrf_k + semantic_rank)
++ keyword_weight / (rrf_k + keyword_rank)
+```
+
+Backend changes:
+
+1. `QueryRequest` now accepts `searchMode`, `semanticWeight`, and `keywordWeight`.
+2. `SearchMode` validates `semantic`, `keyword`, and `hybrid`.
+3. `DocumentService.answerQuery` chooses the retrieval path:
+   - `semantic`: embed the question and call `searchNearest`.
+   - `keyword`: skip embeddings and call `searchKeyword`.
+   - `hybrid`: embed the question and call `searchHybrid`.
+4. `VectorStoreService.searchKeyword` runs Postgres full-text search directly.
+5. `VectorStoreService.searchHybrid` calls the SQL function and maps fused relevance back into the source citation score.
+
+Frontend changes:
+
+1. `App.jsx` stores `searchMode`, `semanticWeight`, and `keywordWeight`.
+2. `ChatPanel.jsx` renders a segmented control for `Semantic`, `Keyword`, and `Hybrid`.
+3. Hybrid mode shows two sliders for semantic and keyword weighting.
+4. `ragApi.askQuestion` includes those fields in the `/api/query` request body.
+5. Source cards now label the score as `Relevance`, because the same field can represent cosine similarity, keyword rank, or fused hybrid relevance.
+
+To add this to an existing Supabase-backed copy of the project:
+
+1. Pull the code changes.
+2. Run `backend/sql/workspaces_migration.sql` in the Supabase SQL Editor.
+3. Confirm the generated column and GIN index exist:
+
+```sql
+select column_name, data_type
+from information_schema.columns
+where table_schema = 'public'
+  and table_name = 'document_chunks'
+  and column_name = 'content_search';
+
+select indexname
+from pg_indexes
+where schemaname = 'public'
+  and tablename = 'document_chunks'
+  and indexname = 'document_chunks_content_search_gin_idx';
+```
+
+4. Confirm the hybrid function exists:
+
+```sql
+select proname
+from pg_proc
+where proname = 'hybrid_search_document_chunks';
+```
+
+5. Restart the Spring backend.
+6. Restart the Vite frontend and use the Ask AI retrieval toggle.
+
 ## How The Frontend Works
 
 The main frontend logic is in `frontend/src/App.jsx`.
@@ -462,8 +646,10 @@ The main frontend logic is in `frontend/src/App.jsx`.
 - It maps backend document statuses into UI labels through `frontend/src/utils/documents.js`.
 - It watches for documents with `Queued` or `Processing` status.
 - While any document is queued or processing, it periodically refreshes document metadata so the UI moves from `Queued` to `Processing` to `Indexed`.
-- It sends the user's question to `/api/query`.
+- It sends the user's question, retrieval mode, and hybrid weights to `/api/query`.
 - It renders source citations returned by the backend.
+- In the Ask AI panel, the retrieval toggle supports `Semantic`, `Keyword`, and `Hybrid`.
+- In `Hybrid`, the semantic and keyword sliders are sent as `semanticWeight` and `keywordWeight`.
 
 Backend status values:
 

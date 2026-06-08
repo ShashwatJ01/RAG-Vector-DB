@@ -2,6 +2,7 @@ package com.example.ragsearch.controller;
 
 import com.example.ragsearch.model.QueryRequest;
 import com.example.ragsearch.model.QueryResponse;
+import com.example.ragsearch.model.SearchMode;
 import com.example.ragsearch.service.DocumentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,16 @@ public class QueryController {
             }
             logger.info("Processing query: '{}'", request.getQuery());
             int topK = request.getTopK() == null ? 0 : request.getTopK();
-            QueryResponse response = documentService.answerQuery(request.getQuery(), request.getWorkspaceId(), request.getDocumentIds(), topK);
+            SearchMode searchMode = SearchMode.from(request.getSearchMode());
+            QueryResponse response = documentService.answerQuery(
+                    request.getQuery(),
+                    request.getWorkspaceId(),
+                    request.getDocumentIds(),
+                    topK,
+                    searchMode,
+                    request.getSemanticWeight(),
+                    request.getKeywordWeight()
+            );
             logger.info("Query processed successfully. Answer length: {} chars, sources: {}", 
                     response.getAnswer().length(), response.getSources().size());
             return ResponseEntity.ok(response);

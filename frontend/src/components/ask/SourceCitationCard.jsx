@@ -4,7 +4,7 @@ function SourceCitationCard({ source, index, selected, onSelect }) {
       <strong>Source {index + 1}</strong>
       <span>{source.fileName}</span>
       <small>
-        Chunk {source.chunkIndex + 1} | Similarity {source.similarityScore ?? "--"}
+        Chunk {source.chunkIndex + 1} | Relevance {source.similarityScore ?? "--"}
       </small>
       <p>"{source.content}"</p>
     </button>

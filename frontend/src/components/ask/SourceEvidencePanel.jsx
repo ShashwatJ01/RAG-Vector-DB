@@ -26,7 +26,7 @@ function SourceEvidencePanel({ selectedSource, copyText }) {
               <dd>{selectedSource.chunkIndex}</dd>
             </div>
             <div>
-              <dt>Similarity Score</dt>
+              <dt>Relevance Score</dt>
               <dd>{selectedSource.similarityScore}</dd>
             </div>
           </dl>

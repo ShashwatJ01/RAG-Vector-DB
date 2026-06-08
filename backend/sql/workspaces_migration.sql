@@ -116,3 +116,99 @@ where status in ('QUEUED', 'PROCESSING');
 
 create index if not exists ingestion_jobs_file_hash_idx
 on public.ingestion_jobs (file_hash);
+
+alter table public.document_chunks
+add column if not exists content_search tsvector
+generated always as (to_tsvector('english', coalesce(content, ''))) stored;
+
+create index if not exists document_chunks_content_search_gin_idx
+on public.document_chunks
+using gin (content_search);
+
+create or replace function public.hybrid_search_document_chunks(
+  query_text text,
+  query_embedding extensions.vector(1536),
+  match_count integer,
+  workspace_filter text default null,
+  document_filter text[] default '{}'::text[],
+  semantic_weight double precision default 1,
+  keyword_weight double precision default 1,
+  rrf_k integer default 50
+)
+returns table (
+  id text,
+  document_id text,
+  file_name text,
+  content text,
+  relevance_score double precision,
+  semantic_rank bigint,
+  keyword_rank bigint
+)
+language sql
+stable
+as $$
+with query_terms as (
+  select websearch_to_tsquery('english', query_text) as query
+),
+filtered_chunks as (
+  select
+    dc.id,
+    dc.document_id,
+    d.file_name,
+    dc.content,
+    dc.embedding,
+    dc.content_search
+  from public.document_chunks dc
+  join public.documents d on d.id = dc.document_id
+  where d.document_status = 'INDEXED'
+    and (workspace_filter is null or d.workspace_id = workspace_filter)
+    and (cardinality(document_filter) = 0 or dc.document_id = any(document_filter))
+),
+semantic_search as (
+  select
+    id,
+    row_number() over (order by embedding <=> query_embedding) as rank_ix
+  from filtered_chunks
+  order by embedding <=> query_embedding
+  limit greatest(match_count * 4, 20)
+),
+keyword_search as (
+  select
+    fc.id,
+    row_number() over (order by ts_rank_cd(fc.content_search, qt.query, 32) desc) as rank_ix
+  from filtered_chunks fc
+  cross join query_terms qt
+  where fc.content_search @@ qt.query
+  order by ts_rank_cd(fc.content_search, qt.query, 32) desc
+  limit greatest(match_count * 4, 20)
+),
+fused as (
+  select
+    fc.id,
+    fc.document_id,
+    fc.file_name,
+    fc.content,
+    ss.rank_ix as semantic_rank,
+    ks.rank_ix as keyword_rank,
+    coalesce(1.0::double precision / (rrf_k + ss.rank_ix), 0.0) * semantic_weight
+      + coalesce(1.0::double precision / (rrf_k + ks.rank_ix), 0.0) * keyword_weight as raw_score
+  from filtered_chunks fc
+  left join semantic_search ss on ss.id = fc.id
+  left join keyword_search ks on ks.id = fc.id
+  where ss.id is not null or ks.id is not null
+)
+select
+  id,
+  document_id,
+  file_name,
+  content,
+  case
+    when semantic_weight + keyword_weight <= 0 then 0
+    else least(raw_score / ((semantic_weight + keyword_weight) / (rrf_k + 1)), 1.0)
+  end as relevance_score,
+  semantic_rank,
+  keyword_rank
+from fused
+order by raw_score desc
+limit least(match_count, 30);
+$$;

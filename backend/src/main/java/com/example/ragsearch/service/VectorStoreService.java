@@ -9,9 +9,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -157,6 +160,76 @@ public class VectorStoreService {
         );
     }
 
+    public List<DocumentChunk> searchKeyword(String queryText, int limit, String workspaceId, List<String> documentIds) {
+        logger.debug("Searching chunks with Postgres full-text search limit={}, filtered documents={}",
+                limit, documentIds == null ? 0 : documentIds.size());
+        boolean hasDocumentFilter = documentIds != null && !documentIds.isEmpty();
+        boolean hasWorkspaceFilter = !hasDocumentFilter && workspaceId != null && !workspaceId.isBlank();
+        String documentFilter = "WHERE d.document_status = 'INDEXED' AND dc.content_search @@ q.query ";
+        if (hasDocumentFilter) {
+            documentFilter += "AND dc.document_id IN (" + documentIds.stream().map(id -> "?").collect(Collectors.joining(",")) + ") ";
+        } else if (hasWorkspaceFilter) {
+            documentFilter += "AND d.workspace_id = ? ";
+        }
+
+        List<Object> parameters = new ArrayList<>();
+        parameters.add(queryText);
+        if (hasDocumentFilter) {
+            parameters.addAll(documentIds);
+        } else if (hasWorkspaceFilter) {
+            parameters.add(workspaceId);
+        }
+        parameters.add(limit);
+
+        return jdbcTemplate.query(
+                "WITH q AS (SELECT websearch_to_tsquery('english', ?) AS query) " +
+                        "SELECT dc.id, dc.document_id, d.file_name, dc.content, " +
+                        "GREATEST(0.0, 1.0 - LEAST(ts_rank_cd(dc.content_search, q.query, 32)::double precision, 1.0)) AS distance " +
+                        "FROM document_chunks dc " +
+                        "JOIN documents d ON d.id = dc.document_id " +
+                        "CROSS JOIN q " +
+                        documentFilter +
+                        "ORDER BY ts_rank_cd(dc.content_search, q.query, 32) DESC " +
+                        "LIMIT ?",
+                parameters.toArray(),
+                (rs, rowNum) -> mapChunkSearchResult(rs)
+        );
+    }
+
+    public List<DocumentChunk> searchHybrid(String queryText,
+                                            List<Double> queryEmbedding,
+                                            int limit,
+                                            String workspaceId,
+                                            List<String> documentIds,
+                                            double semanticWeight,
+                                            double keywordWeight) {
+        String queryVector = toVectorLiteral(queryEmbedding);
+        List<String> filteredDocumentIds = documentIds == null ? List.of() : documentIds;
+        String workspaceFilter = filteredDocumentIds.isEmpty() ? normalizeWorkspaceId(workspaceId) : null;
+        logger.debug("Searching chunks with hybrid RRF limit={}, semanticWeight={}, keywordWeight={}, filtered documents={}",
+                limit, semanticWeight, keywordWeight, filteredDocumentIds.size());
+
+        return jdbcTemplate.query(
+                "SELECT id, document_id, file_name, content, GREATEST(0.0, 1.0 - relevance_score) AS distance " +
+                        "FROM public.hybrid_search_document_chunks(?, ?::vector, ?, ?, ?::text[], ?, ?, 50)",
+                statement -> {
+                    statement.setString(1, queryText);
+                    statement.setString(2, queryVector);
+                    statement.setInt(3, limit);
+                    if (workspaceFilter == null) {
+                        statement.setNull(4, Types.VARCHAR);
+                    } else {
+                        statement.setString(4, workspaceFilter);
+                    }
+                    Array documentArray = statement.getConnection().createArrayOf("text", filteredDocumentIds.toArray(new String[0]));
+                    statement.setArray(5, documentArray);
+                    statement.setDouble(6, semanticWeight);
+                    statement.setDouble(7, keywordWeight);
+                },
+                (rs, rowNum) -> mapChunkSearchResult(rs)
+        );
+    }
+
     public void deleteDocument(String documentId) {
         logger.info("Deleting document id={} and cascaded chunks", documentId);
         jdbcTemplate.update("DELETE FROM documents WHERE id = ?", documentId);
@@ -180,6 +253,17 @@ public class VectorStoreService {
         }
         parameters[parameters.length - 1] = limit;
         return parameters;
+    }
+
+    private DocumentChunk mapChunkSearchResult(ResultSet rs) throws SQLException {
+        return new DocumentChunk(
+                rs.getString("id"),
+                rs.getString("document_id"),
+                rs.getString("file_name"),
+                rs.getString("content"),
+                null,
+                rs.getDouble("distance")
+        );
     }
 
     private String toVectorLiteral(List<Double> embedding) {

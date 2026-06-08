@@ -30,6 +30,12 @@ const emptyWorkspaceForm = {
   speedMode: "standard",
 };
 
+const searchModeLabels = {
+  semantic: "Semantic",
+  keyword: "Keyword",
+  hybrid: "Hybrid",
+};
+
 function App() {
   const [page, setPage] = useState("workspaces");
   const [workspaces, setWorkspaces] = useState([]);
@@ -39,6 +45,9 @@ function App() {
   const [activeTab, setActiveTab] = useState("Ask AI");
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [answerScope, setAnswerScope] = useState("all");
+  const [searchMode, setSearchMode] = useState("semantic");
+  const [semanticWeight, setSemanticWeight] = useState(1);
+  const [keywordWeight, setKeywordWeight] = useState(1);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState(null);
   const [selectedSource, setSelectedSource] = useState(null);
@@ -283,11 +292,15 @@ function App() {
         workspaceId: selectedWorkspace?.id,
         documentIds: scopedDocumentIds,
         topK: selectedWorkspace?.topK || 4,
+        searchMode,
+        semanticWeight,
+        keywordWeight,
       });
 
       const nextAnswer = {
         ...response,
         scope: getAnswerScopeLabel(answerScope),
+        retrievalMode: searchModeLabels[searchMode],
         confidence: response.confidence || "Grounded",
       };
 
@@ -371,6 +384,12 @@ function App() {
             removeDocument={removeDocument}
             answerScope={answerScope}
             setAnswerScope={setAnswerScope}
+            searchMode={searchMode}
+            setSearchMode={setSearchMode}
+            semanticWeight={semanticWeight}
+            setSemanticWeight={setSemanticWeight}
+            keywordWeight={keywordWeight}
+            setKeywordWeight={setKeywordWeight}
             selectedDocumentRecords={selectedDocumentRecords}
             selectedSingleDocument={selectedSingleDocument}
             question={question}

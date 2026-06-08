@@ -23,6 +23,12 @@ function AskAiWorkspace(props) {
         askAi={props.askAi}
         loading={props.loading}
         copyText={props.copyText}
+        searchMode={props.searchMode}
+        setSearchMode={props.setSearchMode}
+        semanticWeight={props.semanticWeight}
+        setSemanticWeight={props.setSemanticWeight}
+        keywordWeight={props.keywordWeight}
+        setKeywordWeight={props.setKeywordWeight}
       />
       <SourceEvidencePanel selectedSource={props.selectedSource} copyText={props.copyText} />
     </div>

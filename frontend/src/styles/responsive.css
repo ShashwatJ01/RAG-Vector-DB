@@ -91,6 +91,7 @@
   .placeholder-grid,
   .ask-grid,
   .workspace-stat-strip,
+  .weight-grid,
   .dropzone {
     grid-template-columns: 1fr;
   }

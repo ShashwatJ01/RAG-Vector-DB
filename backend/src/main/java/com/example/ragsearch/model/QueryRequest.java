@@ -7,6 +7,9 @@ public class QueryRequest {
     private String workspaceId;
     private List<String> documentIds;
     private Integer topK;
+    private String searchMode = "semantic";
+    private Double semanticWeight;
+    private Double keywordWeight;
 
     public QueryRequest() {
     }
@@ -45,5 +48,29 @@ public class QueryRequest {
 
     public void setTopK(Integer topK) {
         this.topK = topK;
+    }
+
+    public String getSearchMode() {
+        return searchMode;
+    }
+
+    public void setSearchMode(String searchMode) {
+        this.searchMode = searchMode;
+    }
+
+    public Double getSemanticWeight() {
+        return semanticWeight;
+    }
+
+    public void setSemanticWeight(Double semanticWeight) {
+        this.semanticWeight = semanticWeight;
+    }
+
+    public Double getKeywordWeight() {
+        return keywordWeight;
+    }
+
+    public void setKeywordWeight(Double keywordWeight) {
+        this.keywordWeight = keywordWeight;
     }
 }

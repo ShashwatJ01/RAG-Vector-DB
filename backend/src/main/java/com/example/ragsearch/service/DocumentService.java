@@ -6,6 +6,7 @@ import com.example.ragsearch.model.DocumentStatus;
 import com.example.ragsearch.model.DocumentStatusResponse;
 import com.example.ragsearch.model.IngestionJob;
 import com.example.ragsearch.model.QueryResponse;
+import com.example.ragsearch.model.SearchMode;
 import com.example.ragsearch.model.SourceCitation;
 import com.example.ragsearch.model.UploadResponse;
 import com.example.ragsearch.model.Workspace;
@@ -138,21 +139,34 @@ public class DocumentService {
     }
 
     public QueryResponse answerQuery(String query, String workspaceId, List<String> documentIds, int topK) {
+        return answerQuery(query, workspaceId, documentIds, topK, SearchMode.SEMANTIC, null, null);
+    }
+
+    public QueryResponse answerQuery(String query,
+                                     String workspaceId,
+                                     List<String> documentIds,
+                                     int topK,
+                                     SearchMode searchMode,
+                                     Double semanticWeight,
+                                     Double keywordWeight) {
         logger.info("Processing query: '{}'", query);
         Workspace workspace = workspaceService.getWorkspace(workspaceId);
         String embeddingModel = workspace == null ? null : workspace.getEmbeddingModel();
         String chatModel = workspace == null ? null : workspace.getChatModel();
 
-        logger.info("Computing embedding for query");
-        List<Double> queryEmbedding = googleGenerativeAiService.embedText(query, embeddingModel);
-        if (queryEmbedding != null) {
-            logger.debug("Query embedding dimension: {}", queryEmbedding.size());
-        }
-
-        logger.info("Finding nearest chunks using Supabase vector search");
         int configuredTopK = topK > 0 ? topK : workspace == null || workspace.getTopK() <= 0 ? 4 : workspace.getTopK();
         int boundedTopK = Math.max(1, Math.min(configuredTopK, 10));
-        List<DocumentChunk> nearest = vectorStoreService.searchNearest(queryEmbedding, boundedTopK, workspaceId, documentIds);
+        SearchMode resolvedSearchMode = searchMode == null ? SearchMode.SEMANTIC : searchMode;
+        List<DocumentChunk> nearest = searchChunks(
+                query,
+                embeddingModel,
+                boundedTopK,
+                workspaceId,
+                documentIds,
+                resolvedSearchMode,
+                resolveWeight(semanticWeight),
+                resolveWeight(keywordWeight)
+        );
         if (nearest.isEmpty()) {
             logger.warn("No matching chunks found in Supabase");
             return new QueryResponse("No documents have been uploaded yet.", List.of());
@@ -176,6 +190,33 @@ public class DocumentService {
         return new QueryResponse(answer, sources);
     }
 
+    private List<DocumentChunk> searchChunks(String query,
+                                             String embeddingModel,
+                                             int limit,
+                                             String workspaceId,
+                                             List<String> documentIds,
+                                             SearchMode searchMode,
+                                             double semanticWeight,
+                                             double keywordWeight) {
+        logger.info("Finding chunks using {} search", searchMode.name().toLowerCase());
+
+        if (searchMode == SearchMode.KEYWORD) {
+            return vectorStoreService.searchKeyword(query, limit, workspaceId, documentIds);
+        }
+
+        logger.info("Computing embedding for query");
+        List<Double> queryEmbedding = googleGenerativeAiService.embedText(query, embeddingModel);
+        if (queryEmbedding != null) {
+            logger.debug("Query embedding dimension: {}", queryEmbedding.size());
+        }
+
+        if (searchMode == SearchMode.HYBRID) {
+            return vectorStoreService.searchHybrid(query, queryEmbedding, limit, workspaceId, documentIds, semanticWeight, keywordWeight);
+        }
+
+        return vectorStoreService.searchNearest(queryEmbedding, limit, workspaceId, documentIds);
+    }
+
     public void deleteDocument(String documentId) {
         vectorStoreService.deleteDocument(documentId);
     }
@@ -197,6 +238,13 @@ public class DocumentService {
             return content;
         }
         return content.substring(0, 497).trim() + "...";
+    }
+
+    private double resolveWeight(Double weight) {
+        if (weight == null || weight <= 0) {
+            return 1.0;
+        }
+        return Math.min(weight, 5.0);
     }
 
     private String sha256Hex(byte[] payload) {

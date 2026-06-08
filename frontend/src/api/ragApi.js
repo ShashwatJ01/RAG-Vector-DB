@@ -62,10 +62,18 @@ export function deleteDocument(documentId) {
   });
 }
 
-export function askQuestion({ query, workspaceId, documentIds = [], topK = 4 }) {
+export function askQuestion({
+  query,
+  workspaceId,
+  documentIds = [],
+  topK = 4,
+  searchMode = "semantic",
+  semanticWeight = 1,
+  keywordWeight = 1,
+}) {
   return request("/api/query", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query, workspaceId, documentIds, topK }),
+    body: JSON.stringify({ query, workspaceId, documentIds, topK, searchMode, semanticWeight, keywordWeight }),
   });
 }

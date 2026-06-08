@@ -24,6 +24,10 @@ function AnswerCard({ answer, selectedSource, setSelectedSource, askAi, copyText
           <dt>Scope</dt>
           <dd>{answer.scope}</dd>
         </div>
+        <div>
+          <dt>Retrieval</dt>
+          <dd>{answer.retrievalMode || "Semantic"}</dd>
+        </div>
       </dl>
       <div className="answer-actions">
         <button className="secondary-button" onClick={() => copyText(answer.answer, "Answer copied.")}>
