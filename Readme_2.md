@@ -172,7 +172,7 @@ using gin (content_search);
 
 create or replace function public.hybrid_search_document_chunks(
   query_text text,
-  query_embedding extensions.vector(1536),
+  query_embedding public.vector(1536),
   match_count integer,
   workspace_filter text default null,
   document_filter text[] default '{}'::text[],
@@ -732,6 +732,16 @@ Test-NetConnection your-host -Port 5432
 ```
 
 If direct host `db.PROJECT_REF.supabase.co` fails, use the Supabase session pooler host.
+
+### Type extensions.vector does not exist
+
+If the hybrid migration fails with:
+
+```text
+ERROR: 42704: type extensions.vector does not exist
+```
+
+Use `query_embedding public.vector(1536)` in `public.hybrid_search_document_chunks` when your schema shows `embedding public.vector`. This project's Java queries already cast query vectors as `?::vector`, which resolves correctly when `public` is on the database search path.
 
 ### Type vector does not exist
 

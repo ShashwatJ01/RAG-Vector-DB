@@ -127,7 +127,7 @@ using gin (content_search);
 
 create or replace function public.hybrid_search_document_chunks(
   query_text text,
-  query_embedding extensions.vector(1536),
+  query_embedding public.vector(1536),
   match_count integer,
   workspace_filter text default null,
   document_filter text[] default '{}'::text[],
