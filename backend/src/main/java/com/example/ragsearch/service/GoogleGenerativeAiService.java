@@ -101,14 +101,18 @@ public class GoogleGenerativeAiService {
         }
         
         StringBuilder prompt = new StringBuilder();
-        prompt.append("You are an AI assistant that answers user questions using only the provided document excerpts.\n");
-        prompt.append("If the answer is not contained in the text, say 'I could not find the answer in the uploaded documents.'\n\n");
+        prompt.append("You are a retrieval QA assistant. Answer the user question using only the provided document excerpts.\n");
+        prompt.append("Rules:\n");
+        prompt.append("- If the excerpts contain the answer, answer directly and cite the excerpt numbers like [1].\n");
+        prompt.append("- Do not repeat the user question as the answer.\n");
+        prompt.append("- If the excerpts do not contain the answer, say exactly: I could not find the answer in the uploaded documents.\n\n");
         prompt.append("Context excerpts:\n");
         for (int i = 0; i < contexts.size(); i++) {
             prompt.append("[" + (i + 1) + "] ").append(contexts.get(i)).append("\n\n");
         }
         prompt.append("User question:\n");
-        prompt.append(query).append("\n");
+        prompt.append(query).append("\n\n");
+        prompt.append("Answer:\n");
 
         logger.debug("Final prompt length: {} chars", prompt.length());
         

@@ -6,6 +6,8 @@ import com.example.ragsearch.model.IngestionJob;
 import com.example.ragsearch.model.Workspace;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
+import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,10 +133,53 @@ public class DocumentIngestionWorker {
     private String extractText(byte[] payload, String fileName) throws IOException {
         if (fileName != null && fileName.toLowerCase().endsWith(".pdf")) {
             try (PDDocument document = Loader.loadPDF(payload)) {
-                return new PDFTextStripper().getText(document);
+                PDFTextStripper stripper = new PDFTextStripper();
+                stripper.setSortByPosition(true);
+                stripper.setShouldSeparateByBeads(false);
+                stripper.setWordSeparator(" ");
+                stripper.setLineSeparator(System.lineSeparator());
+
+                String pageText = stripper.getText(document);
+                String formText = extractFormFieldText(document);
+                String extractedText = combineExtractedText(pageText, formText);
+                logger.info("Extracted {} chars from PDF pages and {} chars from PDF form fields for file={}",
+                        pageText.length(), formText.length(), fileName);
+                return extractedText;
             }
         }
         return new String(payload, StandardCharsets.UTF_8);
+    }
+
+    private String extractFormFieldText(PDDocument document) {
+        PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
+        if (acroForm == null) {
+            return "";
+        }
+
+        StringBuilder builder = new StringBuilder();
+        for (PDField field : acroForm.getFieldTree()) {
+            String value = field.getValueAsString();
+            if (value == null || value.isBlank()) {
+                continue;
+            }
+
+            String name = field.getFullyQualifiedName();
+            if (name == null || name.isBlank()) {
+                name = field.getPartialName();
+            }
+            if (name == null || name.isBlank()) {
+                name = "field";
+            }
+            builder.append(name).append(": ").append(value.trim()).append(System.lineSeparator());
+        }
+        return builder.toString();
+    }
+
+    private String combineExtractedText(String pageText, String formText) {
+        if (formText == null || formText.isBlank()) {
+            return pageText;
+        }
+        return pageText + System.lineSeparator() + "PDF form field values:" + System.lineSeparator() + formText;
     }
 
     private List<String> splitToChunks(String text, int maxChunkSize, int overlap) {

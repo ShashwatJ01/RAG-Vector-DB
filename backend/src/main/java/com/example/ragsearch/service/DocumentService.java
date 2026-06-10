@@ -23,15 +23,24 @@ import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class DocumentService {
     private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
+    private static final Set<String> KEYWORD_STOP_WORDS = Set.of(
+            "about", "answer", "could", "data", "did", "document", "documents", "does", "file", "find",
+            "for", "from", "give", "had", "has", "have", "how", "many", "much", "pertaining", "please",
+            "show", "tell", "that", "the", "this", "uploaded", "was", "were", "what", "when", "where",
+            "which", "who", "why", "with", "would", "are", "can", "entail", "entails", "is", "me"
+    );
     private final GoogleGenerativeAiService googleGenerativeAiService;
     private final VectorStoreService vectorStoreService;
     private final WorkspaceService workspaceService;
@@ -173,6 +182,15 @@ public class DocumentService {
         }
 
         logger.info("Selected {} nearest chunks", nearest.size());
+        for (int i = 0; i < nearest.size(); i++) {
+            DocumentChunk chunk = nearest.get(i);
+            logger.debug("Retrieved chunk {} documentId={} score={} preview={}",
+                    i + 1,
+                    chunk.getDocumentId(),
+                    chunk.getDistance() == null ? null : Math.round(Math.max(0, 1 - chunk.getDistance()) * 100.0) / 100.0,
+                    trimForLog(chunk.getContent())
+            );
+        }
 
         List<String> context = nearest.stream()
                 .map(DocumentChunk::getContent)
@@ -199,9 +217,13 @@ public class DocumentService {
                                              double semanticWeight,
                                              double keywordWeight) {
         logger.info("Finding chunks using {} search", searchMode.name().toLowerCase());
+        String keywordQuery = toKeywordSearchText(query);
+        if (!keywordQuery.equals(query)) {
+            logger.debug("Keyword search text normalized from '{}' to '{}'", query, keywordQuery);
+        }
 
         if (searchMode == SearchMode.KEYWORD) {
-            return vectorStoreService.searchKeyword(query, limit, workspaceId, documentIds);
+            return vectorStoreService.searchKeyword(keywordQuery, limit, workspaceId, documentIds);
         }
 
         logger.info("Computing embedding for query");
@@ -211,7 +233,7 @@ public class DocumentService {
         }
 
         if (searchMode == SearchMode.HYBRID) {
-            return vectorStoreService.searchHybrid(query, queryEmbedding, limit, workspaceId, documentIds, semanticWeight, keywordWeight);
+            return vectorStoreService.searchHybrid(keywordQuery, queryEmbedding, limit, workspaceId, documentIds, semanticWeight, keywordWeight);
         }
 
         return vectorStoreService.searchNearest(queryEmbedding, limit, workspaceId, documentIds);
@@ -240,11 +262,38 @@ public class DocumentService {
         return content.substring(0, 497).trim() + "...";
     }
 
+    private String trimForLog(String content) {
+        if (content == null) {
+            return "";
+        }
+        String compact = content.replaceAll("\\s+", " ").trim();
+        return compact.length() <= 300 ? compact : compact.substring(0, 297) + "...";
+    }
+
     private double resolveWeight(Double weight) {
         if (weight == null || weight <= 0) {
             return 1.0;
         }
         return Math.min(weight, 5.0);
+    }
+
+    private String toKeywordSearchText(String query) {
+        if (query == null || query.isBlank()) {
+            return query;
+        }
+
+        List<String> terms = Arrays.stream(query.toLowerCase(Locale.ROOT).split("[^a-z0-9]+"))
+                .map(String::trim)
+                .filter(term -> term.length() > 2)
+                .filter(term -> !KEYWORD_STOP_WORDS.contains(term))
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (terms.isEmpty()) {
+            return query;
+        }
+
+        return String.join(" OR ", terms);
     }
 
     private String sha256Hex(byte[] payload) {
