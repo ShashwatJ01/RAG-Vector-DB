@@ -9,6 +9,9 @@ public class DocumentChunk {
     private String content;
     private List<Double> embedding;
     private Double distance;
+    private Integer originalRank;
+    private Double rerankScore;
+    private Integer finalRank;
 
     public DocumentChunk() {
     }
@@ -72,5 +75,29 @@ public class DocumentChunk {
 
     public void setDistance(Double distance) {
         this.distance = distance;
+    }
+
+    public Integer getOriginalRank() {
+        return originalRank;
+    }
+
+    public void setOriginalRank(Integer originalRank) {
+        this.originalRank = originalRank;
+    }
+
+    public Double getRerankScore() {
+        return rerankScore;
+    }
+
+    public void setRerankScore(Double rerankScore) {
+        this.rerankScore = rerankScore;
+    }
+
+    public Integer getFinalRank() {
+        return finalRank;
+    }
+
+    public void setFinalRank(Integer finalRank) {
+        this.finalRank = finalRank;
     }
 }

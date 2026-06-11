@@ -1,0 +1,416 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [8 0 R 10 0 R 12 0 R 14 0 R 16 0 R 18 0 R 20 0 R 22 0 R] /Count 8 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+7 0 obj
+<< /Length 3480 >>
+stream
+BT
+/F2 22.00 Tf 54.00 738.00 Td (Hybrid Search Revision Guide) Tj
+/F3 11.00 Tf 54.00 698.30 Td (Postgres full-text search, pgvector, GIN, HNSW, ranking, RRF, and retrieval tradeoffs) Tj
+/F1 10.00 Tf 54.00 669.45 Td (Project context: this RAG app stores uploaded document chunks in Supabase Postgres. Each chunk) Tj
+/F1 10.00 Tf 54.00 655.95 Td (has original text in document_chunks.content, a vector embedding in document_chunks.embedding,) Tj
+/F1 10.00 Tf 54.00 642.45 Td (and a generated full-text-search column in document_chunks.content_search.) Tj
+/F1 10.00 Tf 54.00 622.95 Td (The goal of this guide is retention: each section is written in question and answer format with) Tj
+/F1 10.00 Tf 54.00 609.45 Td (examples and a short mental model.) Tj
+/F2 14.00 Tf 54.00 581.95 Td (Quick Mental Model) Tj
+/F1 9.50 Tf 66.00 558.05 Td (- content is the original chunk text. It is what the app returns and what the LLM reads.) Tj
+/F1 9.50 Tf 66.00 542.22 Td (- content_search is a tsvector generated from content. It is used for keyword/full-text search.) Tj
+/F1 9.50 Tf 66.00 526.40 Td (- embedding is a vector generated from content. It is used for semantic search.) Tj
+/F1 9.50 Tf 66.00 510.57 Td (- keyword mode searches content_search with a tsquery and ranks matches with ts_rank_cd.) Tj
+/F1 9.50 Tf 66.00 494.75 Td (- semantic mode compares query_embedding against embedding using vector distance.) Tj
+/F1 9.50 Tf 66.00 478.92 Td (- hybrid mode runs both keyword and semantic retrieval, then combines their ranks with Reciprocal) Tj
+/F1 9.50 Tf 66.00 466.10 Td (Rank Fusion.) Tj
+/F4 8.50 Tf 68.00 446.27 Td (content        -> original text used for display and LLM context) Tj
+/F4 8.50 Tf 68.00 435.27 Td (content_search -> tsvector used for keyword matching) Tj
+/F4 8.50 Tf 68.00 424.27 Td (embedding      -> vector used for semantic similarity) Tj
+/F2 14.00 Tf 54.00 399.27 Td (1. What is tsvector?) Tj
+/F1 10.00 Tf 54.00 375.37 Td (tsvector is a PostgreSQL full-text-search data type. It stores a searchable representation of) Tj
+/F1 10.00 Tf 54.00 361.87 Td (text, not the original sentence.) Tj
+/F1 10.00 Tf 54.00 342.37 Td (It contains normalized words called lexemes. Depending on the language config, words can be) Tj
+/F1 10.00 Tf 54.00 328.87 Td (lowercased, stemmed, and stripped of stop words.) Tj
+/F1 10.00 Tf 54.00 309.37 Td (In this project, tsvector is used so document chunks can be searched by keywords in addition to) Tj
+/F1 10.00 Tf 54.00 295.87 Td (semantic vector search.) Tj
+/F2 14.00 Tf 54.00 268.37 Td (2. Where was tsvector added in this project?) Tj
+/F1 10.00 Tf 54.00 244.47 Td (It was added on the public.document_chunks table as a generated stored column named) Tj
+/F1 10.00 Tf 54.00 230.97 Td (content_search.) Tj
+/F1 10.00 Tf 54.00 211.47 Td (The column is generated from the chunk content column, so every chunk automatically gets a) Tj
+/F1 10.00 Tf 54.00 197.97 Td (keyword-search representation.) Tj
+/F2 14.00 Tf 54.00 170.47 Td (3. What does the project SQL look like for tsvector?) Tj
+/F1 10.00 Tf 54.00 146.57 Td (The migration adds a generated column similar to this:) Tj
+/F4 8.50 Tf 68.00 123.07 Td (alter table public.document_chunks) Tj
+/F4 8.50 Tf 68.00 112.07 Td (add column if not exists content_search tsvector) Tj
+/F4 8.50 Tf 68.00 101.07 Td (generated always as \(to_tsvector\('english', coalesce\(content, ''\)\)\) stored;) Tj
+/F2 14.00 Tf 54.00 76.07 Td (4. How is data stored in a tsvector?) Tj
+/F1 8 Tf 286.00 28 Td (1) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 3374 >>
+stream
+BT
+/F1 10.00 Tf 54.00 738.00 Td (A tsvector stores lexemes plus optional position information. The original text is not stored) Tj
+/F1 10.00 Tf 54.00 724.50 Td (for display purposes.) Tj
+/F1 10.00 Tf 54.00 705.00 Td (Example: the sentence "The quick brown foxes jumped over the lazy dogs" may become lexemes like) Tj
+/F1 10.00 Tf 54.00 691.50 Td (brown, dog, fox, jump, lazi, and quick, with positions showing where they appeared in the) Tj
+/F1 10.00 Tf 54.00 678.00 Td (original text.) Tj
+/F2 14.00 Tf 54.00 650.50 Td (5. Why does tsvector store positions?) Tj
+/F1 10.00 Tf 54.00 626.60 Td (Positions help PostgreSQL rank results and support phrase/proximity behavior. If query words) Tj
+/F1 10.00 Tf 54.00 613.10 Td (appear close together, the result may be considered more relevant than if the same words are far) Tj
+/F1 10.00 Tf 54.00 599.60 Td (apart.) Tj
+/F2 14.00 Tf 54.00 572.10 Td (6. What is tsquery?) Tj
+/F1 10.00 Tf 54.00 548.20 Td (tsquery is the searchable representation of the user query. It contains lexemes plus search) Tj
+/F1 10.00 Tf 54.00 534.70 Td (logic such as AND, OR, phrase, and NOT conditions.) Tj
+/F1 10.00 Tf 54.00 515.20 Td (The important difference is: tsvector represents document text; tsquery represents the user) Tj
+/F1 10.00 Tf 54.00 501.70 Td (search instruction.) Tj
+/F2 14.00 Tf 54.00 474.20 Td (7. What is the difference between tsvector and tsquery?) Tj
+/F1 10.00 Tf 54.00 450.30 Td (tsvector is the thing being searched. tsquery is the query used to search it.) Tj
+/F1 10.00 Tf 54.00 430.80 Td (In this project, document_chunks.content_search is a tsvector. The user query is converted using) Tj
+/F1 10.00 Tf 54.00 417.30 Td (websearch_to_tsquery.) Tj
+/F4 8.50 Tf 68.00 393.80 Td (document content -> to_tsvector\(...\)        -> tsvector) Tj
+/F4 8.50 Tf 68.00 382.80 Td (user query      -> websearch_to_tsquery\(...\) -> tsquery) Tj
+/F4 8.50 Tf 68.00 371.80 Td (match check     -> tsvector @@ tsquery) Tj
+/F2 14.00 Tf 54.00 346.80 Td (8. What does dc.content_search @@ q.query mean?) Tj
+/F1 10.00 Tf 54.00 322.90 Td (@@ is PostgreSQL full-text search match operator. It checks whether a tsvector satisfies a) Tj
+/F1 10.00 Tf 54.00 309.40 Td (tsquery.) Tj
+/F1 10.00 Tf 54.00 289.90 Td (In this project, dc.content_search is the chunk tsvector and q.query is the user query converted) Tj
+/F1 10.00 Tf 54.00 276.40 Td (into a tsquery.) Tj
+/F4 8.50 Tf 68.00 252.90 Td (dc.content_search @@ q.query) Tj
+/F4 8.50 Tf 68.00 241.90 Td () Tj
+/F4 8.50 Tf 68.00 230.90 Td (Meaning:) Tj
+/F4 8.50 Tf 68.00 219.90 Td (Does this chunk's searchable text match the user's keyword query?) Tj
+/F2 14.00 Tf 54.00 194.90 Td (9. How does keyword search retrieve results?) Tj
+/F1 9.50 Tf 66.00 171.00 Td (- The user types a query.) Tj
+/F1 9.50 Tf 66.00 155.18 Td (- The backend normalizes the query text for keyword search.) Tj
+/F1 9.50 Tf 66.00 139.35 Td (- Postgres converts the query into a tsquery using websearch_to_tsquery.) Tj
+/F1 9.50 Tf 66.00 123.53 Td (- Postgres checks content_search @@ q.query to find matching chunks.) Tj
+/F1 9.50 Tf 66.00 107.70 Td (- Matching chunks are ranked using ts_rank_cd.) Tj
+/F1 9.50 Tf 66.00 91.88 Td (- The original content values for the best chunks are returned.) Tj
+/F1 9.50 Tf 66.00 76.05 Td (- Those content chunks are passed to the LLM as context for answer generation.) Tj
+/F1 8 Tf 286.00 28 Td (2) Tj
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 3633 >>
+stream
+BT
+/F1 10.00 Tf 54.00 738.00 Td (Small but important correction: the user query is converted to tsquery, not tsvector. The stored) Tj
+/F1 10.00 Tf 54.00 724.50 Td (documents are tsvectors.) Tj
+/F2 14.00 Tf 54.00 697.00 Td (10. Is the content column still relevant?) Tj
+/F1 10.00 Tf 54.00 673.10 Td (Yes. content is central to the whole pipeline. content_search and embedding are derived from) Tj
+/F1 10.00 Tf 54.00 659.60 Td (content, but the LLM receives the original content.) Tj
+/F1 9.50 Tf 66.00 640.10 Td (- content is used during ingestion to generate embeddings.) Tj
+/F1 9.50 Tf 66.00 624.27 Td (- content is used by Postgres to generate content_search.) Tj
+/F1 9.50 Tf 66.00 608.45 Td (- content is returned after retrieval.) Tj
+/F1 9.50 Tf 66.00 592.62 Td (- content is passed into the LLM prompt.) Tj
+/F1 10.00 Tf 54.00 576.80 Td (Retrieval does not repeatedly scan raw content for keyword search because content_search is) Tj
+/F1 10.00 Tf 54.00 563.30 Td (faster and more searchable. But the final answer still depends on content.) Tj
+/F2 14.00 Tf 54.00 535.80 Td (11. How does hybrid search retrieve results?) Tj
+/F1 9.50 Tf 66.00 511.90 Td (- The user types a query.) Tj
+/F1 9.50 Tf 66.00 496.07 Td (- For the keyword path, the query becomes a tsquery and is matched against content_search.) Tj
+/F1 9.50 Tf 66.00 480.25 Td (- For the semantic path, the query is converted into an embedding vector.) Tj
+/F1 9.50 Tf 66.00 464.42 Td (- The keyword path ranks chunks with ts_rank_cd.) Tj
+/F1 9.50 Tf 66.00 448.60 Td (- The semantic path ranks chunks by vector distance using embedding <=> query_embedding.) Tj
+/F1 9.50 Tf 66.00 432.77 Td (- The SQL function combines both ranked lists using Reciprocal Rank Fusion.) Tj
+/F1 9.50 Tf 66.00 416.95 Td (- The best fused chunks are returned using their original content.) Tj
+/F1 9.50 Tf 66.00 401.12 Td (- The LLM receives those content chunks as context.) Tj
+/F1 10.00 Tf 54.00 385.30 Td (A chunk does not need to match both systems to be returned. It can be returned by keyword) Tj
+/F1 10.00 Tf 54.00 371.80 Td (search, semantic search, or both. If it appears in both lists, it often receives a stronger) Tj
+/F1 10.00 Tf 54.00 358.30 Td (hybrid score.) Tj
+/F2 14.00 Tf 54.00 330.80 Td (12. What is a GIN index?) Tj
+/F1 10.00 Tf 54.00 306.90 Td (GIN means Generalized Inverted Index. It is useful when a single row contains many searchable) Tj
+/F1 10.00 Tf 54.00 293.40 Td (elements, such as the many lexemes inside a tsvector.) Tj
+/F1 10.00 Tf 54.00 273.90 Td (For full-text search, it stores a reverse lookup from terms to rows. This lets Postgres quickly) Tj
+/F1 10.00 Tf 54.00 260.40 Td (answer: which chunks contain this term?) Tj
+/F4 8.50 Tf 68.00 236.90 Td ("database" -> chunk 1, chunk 9, chunk 20) Tj
+/F4 8.50 Tf 68.00 225.90 Td ("vector"   -> chunk 2, chunk 9, chunk 15) Tj
+/F4 8.50 Tf 68.00 214.90 Td ("hybrid"   -> chunk 4, chunk 7) Tj
+/F1 10.00 Tf 54.00 197.90 Td (In this project, the GIN index is document_chunks_content_search_gin_idx on) Tj
+/F1 10.00 Tf 54.00 184.40 Td (document_chunks.content_search.) Tj
+/F4 8.50 Tf 68.00 160.90 Td (create index if not exists document_chunks_content_search_gin_idx) Tj
+/F4 8.50 Tf 68.00 149.90 Td (on public.document_chunks) Tj
+/F4 8.50 Tf 68.00 138.90 Td (using gin \(content_search\);) Tj
+/F2 14.00 Tf 54.00 113.90 Td (13. How does a GIN index help keyword search?) Tj
+/F1 9.50 Tf 66.00 90.00 Td (- Without the GIN index, Postgres may need to inspect many rows to find matches.) Tj
+/F1 9.50 Tf 66.00 74.17 Td (- With the GIN index, Postgres can look up query terms directly in the index.) Tj
+/F1 8 Tf 286.00 28 Td (3) Tj
+ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 11 0 R >>
+endobj
+13 0 obj
+<< /Length 3795 >>
+stream
+BT
+/F1 9.50 Tf 66.00 738.00 Td (- The index helps find candidate matching rows quickly.) Tj
+/F1 9.50 Tf 66.00 722.17 Td (- Ranking still happens afterward with ts_rank_cd.) Tj
+/F4 8.50 Tf 68.00 702.35 Td (content_search @@ websearch_to_tsquery\('english', 'database vector'\)) Tj
+/F4 8.50 Tf 68.00 691.35 Td () Tj
+/F4 8.50 Tf 68.00 680.35 Td (Postgres can use the GIN index to find rows containing the query lexemes.) Tj
+/F2 14.00 Tf 54.00 655.35 Td (14. Is the GIN index only for keyword searches?) Tj
+/F1 10.00 Tf 54.00 631.45 Td (In this project, yes. The GIN index supports keyword/full-text search on content_search. It is) Tj
+/F1 10.00 Tf 54.00 617.95 Td (not used for semantic vector search.) Tj
+/F1 10.00 Tf 54.00 598.45 Td (Semantic search uses the embedding vector column and a vector index such as HNSW or IVFFlat.) Tj
+/F1 10.00 Tf 54.00 584.95 Td (Hybrid search uses both: GIN for the keyword side and the vector index for the semantic side.) Tj
+/F2 14.00 Tf 54.00 557.45 Td (15. How does ts_rank_cd work?) Tj
+/F1 10.00 Tf 54.00 533.55 Td (ts_rank_cd is a PostgreSQL full-text-search ranking function. It scores how well a tsvector) Tj
+/F1 10.00 Tf 54.00 520.05 Td (matches a tsquery.) Tj
+/F1 10.00 Tf 54.00 500.55 Td (The cd means cover density. It rewards results where the query terms appear close together and) Tj
+/F1 10.00 Tf 54.00 487.05 Td (are concentrated in a small section of text.) Tj
+/F4 8.50 Tf 68.00 463.55 Td (ORDER BY ts_rank_cd\(dc.content_search, q.query, 32\) DESC) Tj
+/F1 10.00 Tf 54.00 446.55 Td (Higher ts_rank_cd score means a better keyword match. The 32 normalization option scales the) Tj
+/F1 10.00 Tf 54.00 433.05 Td (score into a more convenient range. It mainly affects the score shape, not the basic relevance) Tj
+/F1 10.00 Tf 54.00 419.55 Td (idea.) Tj
+/F1 10.00 Tf 54.00 400.05 Td (Example: if the query is "hybrid search ranking", a chunk containing "Hybrid search ranking is) Tj
+/F1 10.00 Tf 54.00 386.55 Td (done with reciprocal rank fusion" should score better than a chunk where hybrid, search, and) Tj
+/F1 10.00 Tf 54.00 373.05 Td (ranking are scattered far apart.) Tj
+/F2 14.00 Tf 54.00 345.55 Td (16. How are semantic results ranked?) Tj
+/F1 10.00 Tf 54.00 321.65 Td (Semantic search ranks chunks by vector similarity. The user query is embedded into a vector, and) Tj
+/F1 10.00 Tf 54.00 308.15 Td (Postgres compares that query vector against each stored chunk embedding.) Tj
+/F4 8.50 Tf 68.00 284.65 Td (ORDER BY embedding <=> query_embedding) Tj
+/F1 10.00 Tf 54.00 267.65 Td (In pgvector, <=> is cosine distance. Lower distance means more similar meaning. This is why) Tj
+/F1 10.00 Tf 54.00 254.15 Td (semantic search can find paraphrases and conceptually similar chunks even if exact words do not) Tj
+/F1 10.00 Tf 54.00 240.65 Td (match.) Tj
+/F2 14.00 Tf 54.00 213.15 Td (17. What ranking systems exist generally?) Tj
+/F1 9.50 Tf 66.00 189.25 Td (- Lexical ranking: ranks exact or near-exact term matches. Examples include TF-IDF, BM25, ts_rank,) Tj
+/F1 9.50 Tf 66.00 176.42 Td (and ts_rank_cd.) Tj
+/F1 9.50 Tf 66.00 160.60 Td (- Semantic ranking: ranks by meaning using embeddings and vector similarity.) Tj
+/F1 9.50 Tf 66.00 144.78 Td (- Hybrid ranking: combines lexical and semantic retrieval.) Tj
+/F1 9.50 Tf 66.00 128.95 Td (- Learning-to-rank: uses trained models and features to order results.) Tj
+/F1 9.50 Tf 66.00 113.13 Td (- Cross-encoder reranking: sends query plus candidate chunk pairs into a model to produce a) Tj
+/F1 9.50 Tf 66.00 100.30 Td (stronger final relevance score.) Tj
+/F1 10.00 Tf 54.00 84.48 Td (This project uses lexical ranking with ts_rank_cd, semantic ranking with pgvector cosine) Tj
+/F1 10.00 Tf 54.00 70.98 Td (distance, and hybrid ranking with Reciprocal Rank Fusion.) Tj
+/F1 8 Tf 286.00 28 Td (4) Tj
+ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 13 0 R >>
+endobj
+15 0 obj
+<< /Length 3404 >>
+stream
+BT
+/F2 14.00 Tf 54.00 738.00 Td (18. What is Reciprocal Rank Fusion?) Tj
+/F1 10.00 Tf 54.00 714.10 Td (Reciprocal Rank Fusion, or RRF, combines multiple ranked lists without needing to compare their) Tj
+/F1 10.00 Tf 54.00 700.60 Td (raw scores directly.) Tj
+/F1 10.00 Tf 54.00 681.10 Td (This matters because keyword scores and vector distances are not naturally comparable. A) Tj
+/F1 10.00 Tf 54.00 667.60 Td (ts_rank_cd score and a cosine distance have different meanings and scales.) Tj
+/F4 8.50 Tf 68.00 644.10 Td (hybrid_score = semantic_weight / \(rrf_k + semantic_rank\)) Tj
+/F4 8.50 Tf 68.00 633.10 Td (             + keyword_weight  / \(rrf_k + keyword_rank\)) Tj
+/F1 10.00 Tf 54.00 616.10 Td (If a chunk ranks well in both semantic and keyword search, both sides contribute to its final) Tj
+/F1 10.00 Tf 54.00 602.60 Td (score.) Tj
+/F2 14.00 Tf 54.00 575.10 Td (19. What is rrf_k?) Tj
+/F1 10.00 Tf 54.00 551.20 Td (rrf_k is a tuning constant used in the RRF formula. In this project, the backend passes 50.) Tj
+/F4 8.50 Tf 68.00 527.70 Td (semantic_weight / \(50 + semantic_rank\)) Tj
+/F4 8.50 Tf 68.00 516.70 Td (+ keyword_weight / \(50 + keyword_rank\)) Tj
+/F1 10.00 Tf 54.00 499.70 Td (Adding rrf_k prevents rank 1 from overpowering everything else. A smaller rrf_k makes top ranks) Tj
+/F1 10.00 Tf 54.00 486.20 Td (more dominant. A larger rrf_k makes rank differences less dramatic.) Tj
+/F4 8.50 Tf 68.00 462.70 Td (With rrf_k = 50:) Tj
+/F4 8.50 Tf 68.00 451.70 Td (rank 1  -> 1 / 51 = 0.0196) Tj
+/F4 8.50 Tf 68.00 440.70 Td (rank 5  -> 1 / 55 = 0.0182) Tj
+/F4 8.50 Tf 68.00 429.70 Td (rank 20 -> 1 / 70 = 0.0143) Tj
+/F2 14.00 Tf 54.00 404.70 Td (20. Why not use rrf_k in keyword-only or semantic-only mode?) Tj
+/F1 10.00 Tf 54.00 380.80 Td (Because RRF is useful when fusing multiple ranked lists. Keyword-only mode has one list.) Tj
+/F1 10.00 Tf 54.00 367.30 Td (Semantic-only mode has one list.) Tj
+/F1 10.00 Tf 54.00 347.80 Td (With only one list, RRF would preserve the same ordering and only change the score shape. It) Tj
+/F1 10.00 Tf 54.00 334.30 Td (would not add new retrieval value.) Tj
+/F4 8.50 Tf 68.00 310.80 Td (Keyword mode  -> use ts_rank_cd directly) Tj
+/F4 8.50 Tf 68.00 299.80 Td (Semantic mode -> use vector distance directly) Tj
+/F4 8.50 Tf 68.00 288.80 Td (Hybrid mode   -> use RRF because two ranking systems must be merged) Tj
+/F2 14.00 Tf 54.00 263.80 Td (21. What is HNSW?) Tj
+/F1 10.00 Tf 54.00 239.90 Td (HNSW means Hierarchical Navigable Small World. It is an approximate nearest-neighbor index for) Tj
+/F1 10.00 Tf 54.00 226.40 Td (vector search.) Tj
+/F1 10.00 Tf 54.00 206.90 Td (HNSW builds a graph where nearby vectors are connected. During search, it walks through the) Tj
+/F1 10.00 Tf 54.00 193.40 Td (graph toward closer and closer vectors instead of comparing the query vector against every) Tj
+/F1 10.00 Tf 54.00 179.90 Td (stored vector.) Tj
+/F1 9.50 Tf 66.00 160.40 Td (- Good query performance.) Tj
+/F1 9.50 Tf 66.00 144.58 Td (- High recall for approximate vector search.) Tj
+/F1 9.50 Tf 66.00 128.75 Td (- No separate training step.) Tj
+/F1 9.50 Tf 66.00 112.93 Td (- Works well as new vectors are inserted.) Tj
+/F1 9.50 Tf 66.00 97.10 Td (- Usually a strong default for RAG apps.) Tj
+/F1 10.00 Tf 54.00 81.28 Td (Tradeoff: HNSW can use more memory and can take longer to build than simpler vector index types.) Tj
+/F1 8 Tf 286.00 28 Td (5) Tj
+ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 15 0 R >>
+endobj
+17 0 obj
+<< /Length 3765 >>
+stream
+BT
+/F2 14.00 Tf 54.00 738.00 Td (22. What is IVFFlat?) Tj
+/F1 10.00 Tf 54.00 714.10 Td (IVFFlat means Inverted File Flat. It clusters vectors into groups. At query time, it searches) Tj
+/F1 10.00 Tf 54.00 700.60 Td (only the nearest clusters instead of all vectors.) Tj
+/F1 9.50 Tf 66.00 681.10 Td (- Can be fast on large datasets.) Tj
+/F1 9.50 Tf 66.00 665.27 Td (- Can be memory-efficient.) Tj
+/F1 9.50 Tf 66.00 649.45 Td (- Requires representative data before index creation.) Tj
+/F1 9.50 Tf 66.00 633.62 Td (- Needs tuning such as list count and probes.) Tj
+/F1 9.50 Tf 66.00 617.80 Td (- Recall can suffer if the clustering or probe settings are not tuned well.) Tj
+/F2 14.00 Tf 54.00 593.97 Td (23. Why use HNSW instead of IVFFlat in this project?) Tj
+/F1 10.00 Tf 54.00 570.07 Td (HNSW fits this project because documents are uploaded over time and chunks are added) Tj
+/F1 10.00 Tf 54.00 556.57 Td (incrementally. It gives strong semantic retrieval quality without requiring a separate training) Tj
+/F1 10.00 Tf 54.00 543.07 Td (step.) Tj
+/F1 10.00 Tf 54.00 523.57 Td (IVFFlat can be excellent, but it is more sensitive to setup. You need enough representative) Tj
+/F1 10.00 Tf 54.00 510.07 Td (vectors, a good number of lists, and tuned probes. For a learning-focused RAG app, HNSW is) Tj
+/F1 10.00 Tf 54.00 496.57 Td (simpler and usually a better default.) Tj
+/F2 14.00 Tf 54.00 469.07 Td (24. What are the main retrieval tradeoffs in this project?) Tj
+/F1 9.50 Tf 66.00 445.17 Td (- Semantic search handles paraphrases and meaning, but can miss exact IDs, function names,) Tj
+/F1 9.50 Tf 66.00 432.35 Td (acronyms, or error codes.) Tj
+/F1 9.50 Tf 66.00 416.52 Td (- Keyword search handles exact terms well, but can miss relevant chunks when the user phrases the) Tj
+/F1 9.50 Tf 66.00 403.70 Td (idea differently.) Tj
+/F1 9.50 Tf 66.00 387.87 Td (- Hybrid search improves recall by using both, but costs more work and requires weight tuning.) Tj
+/F1 9.50 Tf 66.00 372.05 Td (- Higher semanticWeight favors conceptual matches.) Tj
+/F1 9.50 Tf 66.00 356.22 Td (- Higher keywordWeight favors exact term matches.) Tj
+/F1 9.50 Tf 66.00 340.40 Td (- Higher topK gives the LLM more context but can add noise and latency.) Tj
+/F1 9.50 Tf 66.00 324.57 Td (- Smaller chunks improve precise retrieval but may lose surrounding context.) Tj
+/F1 9.50 Tf 66.00 308.75 Td (- Larger chunks preserve context but can reduce matching precision.) Tj
+/F1 9.50 Tf 66.00 292.92 Td (- Workspace and document filters improve precision but may exclude useful chunks.) Tj
+/F2 14.00 Tf 54.00 269.10 Td (25. What should you remember for interviews or revision?) Tj
+/F1 9.50 Tf 66.00 245.20 Td (- tsvector is for indexed document text; tsquery is for the user search instruction.) Tj
+/F1 9.50 Tf 66.00 229.37 Td (- @@ checks whether a tsvector matches a tsquery.) Tj
+/F1 9.50 Tf 66.00 213.55 Td (- GIN speeds up full-text matching but does not replace ranking.) Tj
+/F1 9.50 Tf 66.00 197.72 Td (- ts_rank_cd ranks keyword matches using cover density.) Tj
+/F1 9.50 Tf 66.00 181.90 Td (- Embeddings support semantic similarity search.) Tj
+/F1 9.50 Tf 66.00 166.08 Td (- HNSW and IVFFlat are vector indexes for approximate nearest-neighbor search.) Tj
+/F1 9.50 Tf 66.00 150.25 Td (- RRF combines rank positions from multiple retrieval systems.) Tj
+/F1 9.50 Tf 66.00 134.43 Td (- rrf_k controls how strongly top ranks dominate in RRF.) Tj
+/F1 9.50 Tf 66.00 118.60 Td (- Hybrid search is useful because lexical and semantic systems fail in different ways.) Tj
+/F2 14.00 Tf 54.00 94.78 Td (Good To Know: Generated Stored Columns) Tj
+/F1 10.00 Tf 54.00 70.88 Td (The content_search column is generated always as stored. That means PostgreSQL computes it from) Tj
+/F1 8 Tf 286.00 28 Td (6) Tj
+ET
+endstream
+endobj
+18 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 17 0 R >>
+endobj
+19 0 obj
+<< /Length 3199 >>
+stream
+BT
+/F1 10.00 Tf 54.00 738.00 Td (content and stores the result. The app does not manually insert content_search when saving) Tj
+/F1 10.00 Tf 54.00 724.50 Td (chunks.) Tj
+/F1 10.00 Tf 54.00 705.00 Td (When content changes, PostgreSQL can recompute the generated column. This keeps keyword search) Tj
+/F1 10.00 Tf 54.00 691.50 Td (representation consistent with the original text.) Tj
+/F2 14.00 Tf 54.00 664.00 Td (Good To Know: Query Parsing) Tj
+/F1 10.00 Tf 54.00 640.10 Td (websearch_to_tsquery accepts user-friendly search syntax. It is usually safer and nicer for) Tj
+/F1 10.00 Tf 54.00 626.60 Td (user-entered text than asking users to write raw tsquery syntax.) Tj
+/F4 8.50 Tf 68.00 603.10 Td (websearch_to_tsquery\('english', 'hybrid search'\)) Tj
+/F4 8.50 Tf 68.00 592.10 Td (-- roughly means: hybrid AND search) Tj
+/F2 14.00 Tf 54.00 567.10 Td (Good To Know: GIN Finds, Ranking Orders) Tj
+/F1 10.00 Tf 54.00 543.20 Td (A helpful phrase: the GIN index finds candidate rows; ts_rank_cd orders them. The index is about) Tj
+/F1 10.00 Tf 54.00 529.70 Td (speed. The rank function is about relevance.) Tj
+/F2 14.00 Tf 54.00 502.20 Td (Good To Know: Hybrid Search Is Not Just More Search) Tj
+/F1 10.00 Tf 54.00 478.30 Td (Hybrid search is valuable because keyword and semantic systems have complementary weaknesses.) Tj
+/F1 10.00 Tf 54.00 464.80 Td (Keyword search is brittle with wording but strong with exact tokens. Semantic search is flexible) Tj
+/F1 10.00 Tf 54.00 451.30 Td (with wording but can be weak with rare exact terms.) Tj
+/F2 14.00 Tf 54.00 423.80 Td (Good To Know: Evaluation Metrics) Tj
+/F1 10.00 Tf 54.00 399.90 Td (If you later evaluate retrieval quality, common metrics include recall@k, precision@k, MRR, and) Tj
+/F1 10.00 Tf 54.00 386.40 Td (nDCG.) Tj
+/F1 9.50 Tf 66.00 366.90 Td (- recall@k: did the correct chunk appear in the top k?) Tj
+/F1 9.50 Tf 66.00 351.08 Td (- precision@k: how many of the top k chunks were useful?) Tj
+/F1 9.50 Tf 66.00 335.25 Td (- MRR: how high was the first correct result?) Tj
+/F1 9.50 Tf 66.00 319.43 Td (- nDCG: did the ranking put the best results near the top?) Tj
+/F2 14.00 Tf 54.00 295.60 Td (Project-Specific SQL Reference) Tj
+/F4 8.50 Tf 68.00 267.70 Td (-- Keyword match) Tj
+/F4 8.50 Tf 68.00 256.70 Td (content_search @@ websearch_to_tsquery\('english', query_text\)) Tj
+/F4 8.50 Tf 68.00 245.70 Td () Tj
+/F4 8.50 Tf 68.00 234.70 Td (-- Keyword ranking) Tj
+/F4 8.50 Tf 68.00 223.70 Td (order by ts_rank_cd\(content_search, query, 32\) desc) Tj
+/F4 8.50 Tf 68.00 212.70 Td () Tj
+/F4 8.50 Tf 68.00 201.70 Td (-- Semantic ranking) Tj
+/F4 8.50 Tf 68.00 190.70 Td (order by embedding <=> query_embedding) Tj
+/F4 8.50 Tf 68.00 179.70 Td () Tj
+/F4 8.50 Tf 68.00 168.70 Td (-- Hybrid fusion) Tj
+/F4 8.50 Tf 68.00 157.70 Td (semantic_weight / \(rrf_k + semantic_rank\)) Tj
+/F4 8.50 Tf 68.00 146.70 Td (+ keyword_weight / \(rrf_k + keyword_rank\)) Tj
+/F2 14.00 Tf 54.00 121.70 Td (One-Page Cheat Sheet) Tj
+/F1 9.50 Tf 66.00 97.80 Td (- content: Original chunk text returned to the app and passed to the LLM.) Tj
+/F1 9.50 Tf 66.00 81.98 Td (- content_search: Generated tsvector column used for keyword search.) Tj
+/F1 8 Tf 286.00 28 Td (7) Tj
+ET
+endstream
+endobj
+20 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 19 0 R >>
+endobj
+21 0 obj
+<< /Length 981 >>
+stream
+BT
+/F1 9.50 Tf 66.00 738.00 Td (- embedding: Vector representation used for semantic search.) Tj
+/F1 9.50 Tf 66.00 722.17 Td (- tsvector: Searchable document representation.) Tj
+/F1 9.50 Tf 66.00 706.35 Td (- tsquery: Searchable user-query representation.) Tj
+/F1 9.50 Tf 66.00 690.52 Td (- @@: Full-text match operator: tsvector matches tsquery.) Tj
+/F1 9.50 Tf 66.00 674.70 Td (- GIN: Inverted index that quickly finds rows containing search lexemes.) Tj
+/F1 9.50 Tf 66.00 658.87 Td (- ts_rank_cd: Keyword relevance ranking based on cover density.) Tj
+/F1 9.50 Tf 66.00 643.05 Td (- HNSW: Graph-based vector index, strong default for dynamic RAG datasets.) Tj
+/F1 9.50 Tf 66.00 627.22 Td (- IVFFlat: Cluster-based vector index that needs training/tuning.) Tj
+/F1 9.50 Tf 66.00 611.40 Td (- RRF: Combines multiple ranked lists using rank positions.) Tj
+/F1 9.50 Tf 66.00 595.57 Td (- rrf_k: RRF constant controlling how much top ranks dominate.) Tj
+/F1 8 Tf 286.00 28 Td (8) Tj
+ET
+endstream
+endobj
+22 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 21 0 R >>
+endobj
+xref
+0 23
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000164 00000 n 
+0000000234 00000 n 
+0000000309 00000 n 
+0000000387 00000 n 
+0000000455 00000 n 
+0000003987 00000 n 
+0000004143 00000 n 
+0000007569 00000 n 
+0000007726 00000 n 
+0000011412 00000 n 
+0000011570 00000 n 
+0000015418 00000 n 
+0000015576 00000 n 
+0000019033 00000 n 
+0000019191 00000 n 
+0000023009 00000 n 
+0000023167 00000 n 
+0000026419 00000 n 
+0000026577 00000 n 
+0000027610 00000 n 
+trailer
+<< /Size 23 /Root 1 0 R >>
+startxref
+27768
+%%EOF

@@ -29,6 +29,20 @@ function SourceEvidencePanel({ selectedSource, copyText }) {
               <dt>Relevance Score</dt>
               <dd>{selectedSource.similarityScore}</dd>
             </div>
+            <div>
+              <dt>Original Rank</dt>
+              <dd>{selectedSource.originalRank ?? "--"}</dd>
+            </div>
+            <div>
+              <dt>Final Rank</dt>
+              <dd>{selectedSource.finalRank ?? "--"}</dd>
+            </div>
+            <div>
+              <dt>Rerank Score</dt>
+              <dd>
+                {typeof selectedSource.rerankScore === "number" ? selectedSource.rerankScore.toFixed(2) : "--"}
+              </dd>
+            </div>
           </dl>
           <h4>Retrieved Text</h4>
           <p className="source-text">"{selectedSource.content}"</p>

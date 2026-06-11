@@ -6,6 +6,7 @@ import com.example.ragsearch.model.DocumentStatus;
 import com.example.ragsearch.model.DocumentStatusResponse;
 import com.example.ragsearch.model.IngestionJob;
 import com.example.ragsearch.model.QueryResponse;
+import com.example.ragsearch.model.RerankComparison;
 import com.example.ragsearch.model.SearchMode;
 import com.example.ragsearch.model.SourceCitation;
 import com.example.ragsearch.model.UploadResponse;
@@ -35,6 +36,9 @@ import java.util.stream.Collectors;
 @Service
 public class DocumentService {
     private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
+    private static final int MAX_FINAL_TOP_K = 10;
+    private static final int DEFAULT_RERANK_TOP_N = 20;
+    private static final int MAX_RERANK_TOP_N = 50;
     private static final Set<String> KEYWORD_STOP_WORDS = Set.of(
             "about", "answer", "could", "data", "did", "document", "documents", "does", "file", "find",
             "for", "from", "give", "had", "has", "have", "how", "many", "much", "pertaining", "please",
@@ -43,17 +47,20 @@ public class DocumentService {
     );
     private final GoogleGenerativeAiService googleGenerativeAiService;
     private final VectorStoreService vectorStoreService;
+    private final RerankingService rerankingService;
     private final WorkspaceService workspaceService;
     private final IngestionJobRepository ingestionJobRepository;
     private final int maxRetries;
 
     public DocumentService(GoogleGenerativeAiService googleGenerativeAiService,
                            VectorStoreService vectorStoreService,
+                           RerankingService rerankingService,
                            WorkspaceService workspaceService,
                            IngestionJobRepository ingestionJobRepository,
                            @Value("${ingestion.worker.max-retries:3}") int maxRetries) {
         this.googleGenerativeAiService = googleGenerativeAiService;
         this.vectorStoreService = vectorStoreService;
+        this.rerankingService = rerankingService;
         this.workspaceService = workspaceService;
         this.ingestionJobRepository = ingestionJobRepository;
         this.maxRetries = maxRetries;
@@ -158,54 +165,92 @@ public class DocumentService {
                                      SearchMode searchMode,
                                      Double semanticWeight,
                                      Double keywordWeight) {
+        return answerQuery(query, workspaceId, documentIds, topK, searchMode, semanticWeight, keywordWeight, null, true, false);
+    }
+
+    public QueryResponse answerQuery(String query,
+                                     String workspaceId,
+                                     List<String> documentIds,
+                                     int topK,
+                                     SearchMode searchMode,
+                                     Double semanticWeight,
+                                     Double keywordWeight,
+                                     Integer topN,
+                                     Boolean rerank,
+                                     Boolean compareReranking) {
         logger.info("Processing query: '{}'", query);
         Workspace workspace = workspaceService.getWorkspace(workspaceId);
         String embeddingModel = workspace == null ? null : workspace.getEmbeddingModel();
         String chatModel = workspace == null ? null : workspace.getChatModel();
 
         int configuredTopK = topK > 0 ? topK : workspace == null || workspace.getTopK() <= 0 ? 4 : workspace.getTopK();
-        int boundedTopK = Math.max(1, Math.min(configuredTopK, 10));
+        int boundedTopK = Math.max(1, Math.min(configuredTopK, MAX_FINAL_TOP_K));
+        boolean shouldRerank = rerank == null || rerank;
+        boolean shouldCompareReranking = shouldRerank && Boolean.TRUE.equals(compareReranking);
+        int retrievalTopN = resolveRetrievalTopN(topN, boundedTopK, shouldRerank);
         SearchMode resolvedSearchMode = searchMode == null ? SearchMode.SEMANTIC : searchMode;
-        List<DocumentChunk> nearest = searchChunks(
+        logger.info("Retrieving {} candidate chunk(s), then selecting final top {}", retrievalTopN, boundedTopK);
+        List<DocumentChunk> candidates = searchChunks(
                 query,
                 embeddingModel,
-                boundedTopK,
+                retrievalTopN,
                 workspaceId,
                 documentIds,
                 resolvedSearchMode,
                 resolveWeight(semanticWeight),
                 resolveWeight(keywordWeight)
         );
-        if (nearest.isEmpty()) {
+        if (candidates.isEmpty()) {
             logger.warn("No matching chunks found in Supabase");
             return new QueryResponse("No documents have been uploaded yet.", List.of());
         }
 
-        logger.info("Selected {} nearest chunks", nearest.size());
-        for (int i = 0; i < nearest.size(); i++) {
-            DocumentChunk chunk = nearest.get(i);
-            logger.debug("Retrieved chunk {} documentId={} score={} preview={}",
+        rerankingService.applyOriginalRanks(candidates);
+        List<DocumentChunk> baselineChunks = shouldCompareReranking || !shouldRerank
+                ? rerankingService.selectOriginalTopK(candidates, boundedTopK)
+                : List.of();
+        List<SourceCitation> baselineSources = shouldCompareReranking
+                ? toCitations(baselineChunks)
+                : List.of();
+
+        List<DocumentChunk> finalChunks = shouldRerank
+                ? rerankingService.rerank(query, candidates, boundedTopK)
+                : baselineChunks;
+
+        logger.info("Selected {} final chunk(s) from {} candidate(s), rerank={}",
+                finalChunks.size(), candidates.size(), shouldRerank);
+        for (int i = 0; i < finalChunks.size(); i++) {
+            DocumentChunk chunk = finalChunks.get(i);
+            logger.debug("Selected chunk {} documentId={} originalRank={} rerankScore={} score={} preview={}",
                     i + 1,
                     chunk.getDocumentId(),
+                    chunk.getOriginalRank(),
+                    chunk.getRerankScore(),
                     chunk.getDistance() == null ? null : Math.round(Math.max(0, 1 - chunk.getDistance()) * 100.0) / 100.0,
                     trimForLog(chunk.getContent())
             );
         }
 
-        List<String> context = nearest.stream()
+        List<String> context = finalChunks.stream()
                 .map(DocumentChunk::getContent)
                 .collect(Collectors.toList());
 
         logger.info("Generating answer based on {} context excerpts", context.size());
         String answer = googleGenerativeAiService.createAnswer(query, context, chatModel);
-        
-        List<SourceCitation> sources = new ArrayList<>();
-        for (int i = 0; i < nearest.size(); i++) {
-            sources.add(toCitation(nearest.get(i), i));
+
+        List<SourceCitation> sources = toCitations(finalChunks);
+        RerankComparison comparison = null;
+        if (shouldCompareReranking) {
+            logger.info("Generating baseline answer without reranking for comparison");
+            List<String> baselineContext = baselineChunks.stream()
+                    .map(DocumentChunk::getContent)
+                    .collect(Collectors.toList());
+            String baselineAnswer = googleGenerativeAiService.createAnswer(query, baselineContext, chatModel);
+            comparison = new RerankComparison(baselineAnswer, baselineSources, countSourceOverlap(sources, baselineSources));
         }
-        
+
         logger.info("Answer generated with {} source document(s)", sources.size());
-        return new QueryResponse(answer, sources);
+        return new QueryResponse(answer, sources, "Grounded", shouldRerank, retrievalTopN, boundedTopK, comparison);
     }
 
     private List<DocumentChunk> searchChunks(String query,
@@ -243,6 +288,14 @@ public class DocumentService {
         vectorStoreService.deleteDocument(documentId);
     }
 
+    private List<SourceCitation> toCitations(List<DocumentChunk> chunks) {
+        List<SourceCitation> sources = new ArrayList<>();
+        for (int i = 0; i < chunks.size(); i++) {
+            sources.add(toCitation(chunks.get(i), i));
+        }
+        return sources;
+    }
+
     private SourceCitation toCitation(DocumentChunk chunk, int chunkIndex) {
         Double similarity = chunk.getDistance() == null ? null : Math.max(0, 1 - chunk.getDistance());
         return new SourceCitation(
@@ -251,8 +304,33 @@ public class DocumentService {
                 chunk.getFileName(),
                 chunkIndex,
                 similarity == null ? null : Math.round(similarity * 100.0) / 100.0,
+                chunk.getOriginalRank(),
+                chunk.getRerankScore(),
+                chunk.getFinalRank(),
                 trimSnippet(chunk.getContent())
         );
+    }
+
+    private int countSourceOverlap(List<SourceCitation> rerankedSources, List<SourceCitation> baselineSources) {
+        Set<String> baselineIds = baselineSources.stream()
+                .map(SourceCitation::getId)
+                .collect(Collectors.toSet());
+        return (int) rerankedSources.stream()
+                .map(SourceCitation::getId)
+                .filter(baselineIds::contains)
+                .count();
+    }
+
+    private int resolveRetrievalTopN(Integer requestedTopN, int finalTopK, boolean shouldRerank) {
+        if (!shouldRerank) {
+            return finalTopK;
+        }
+
+        int requestedOrDefault = requestedTopN == null || requestedTopN <= 0
+                ? Math.max(DEFAULT_RERANK_TOP_N, finalTopK * 5)
+                : requestedTopN;
+        int bounded = Math.max(finalTopK, requestedOrDefault);
+        return Math.min(Math.max(DEFAULT_RERANK_TOP_N, bounded), MAX_RERANK_TOP_N);
     }
 
     private String trimSnippet(String content) {

@@ -43,7 +43,10 @@ public class QueryController {
                     topK,
                     searchMode,
                     request.getSemanticWeight(),
-                    request.getKeywordWeight()
+                    request.getKeywordWeight(),
+                    request.getTopN(),
+                    request.getRerank(),
+                    request.getCompareReranking()
             );
             logger.info("Query processed successfully. Answer length: {} chars, sources: {}", 
                     response.getAnswer().length(), response.getSources().size());

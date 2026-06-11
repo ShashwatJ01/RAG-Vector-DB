@@ -48,6 +48,7 @@ function App() {
   const [searchMode, setSearchMode] = useState("semantic");
   const [semanticWeight, setSemanticWeight] = useState(1);
   const [keywordWeight, setKeywordWeight] = useState(1);
+  const [compareReranking, setCompareReranking] = useState(false);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState(null);
   const [selectedSource, setSelectedSource] = useState(null);
@@ -295,12 +296,14 @@ function App() {
         searchMode,
         semanticWeight,
         keywordWeight,
+        compareReranking,
       });
 
+      const retrievalMode = `${searchModeLabels[searchMode]}${response.reranked ? " + Rerank" : ""}`;
       const nextAnswer = {
         ...response,
         scope: getAnswerScopeLabel(answerScope),
-        retrievalMode: searchModeLabels[searchMode],
+        retrievalMode,
         confidence: response.confidence || "Grounded",
       };
 
@@ -390,6 +393,8 @@ function App() {
             setSemanticWeight={setSemanticWeight}
             keywordWeight={keywordWeight}
             setKeywordWeight={setKeywordWeight}
+            compareReranking={compareReranking}
+            setCompareReranking={setCompareReranking}
             selectedDocumentRecords={selectedDocumentRecords}
             selectedSingleDocument={selectedSingleDocument}
             question={question}

@@ -6,17 +6,35 @@ public class SourceCitation {
     private String fileName;
     private int chunkIndex;
     private Double similarityScore;
+    private Integer originalRank;
+    private Double rerankScore;
+    private Integer finalRank;
     private String content;
 
     public SourceCitation() {
     }
 
     public SourceCitation(String id, String documentId, String fileName, int chunkIndex, Double similarityScore, String content) {
+        this(id, documentId, fileName, chunkIndex, similarityScore, null, null, null, content);
+    }
+
+    public SourceCitation(String id,
+                          String documentId,
+                          String fileName,
+                          int chunkIndex,
+                          Double similarityScore,
+                          Integer originalRank,
+                          Double rerankScore,
+                          Integer finalRank,
+                          String content) {
         this.id = id;
         this.documentId = documentId;
         this.fileName = fileName;
         this.chunkIndex = chunkIndex;
         this.similarityScore = similarityScore;
+        this.originalRank = originalRank;
+        this.rerankScore = rerankScore;
+        this.finalRank = finalRank;
         this.content = content;
     }
 
@@ -58,6 +76,30 @@ public class SourceCitation {
 
     public void setSimilarityScore(Double similarityScore) {
         this.similarityScore = similarityScore;
+    }
+
+    public Integer getOriginalRank() {
+        return originalRank;
+    }
+
+    public void setOriginalRank(Integer originalRank) {
+        this.originalRank = originalRank;
+    }
+
+    public Double getRerankScore() {
+        return rerankScore;
+    }
+
+    public void setRerankScore(Double rerankScore) {
+        this.rerankScore = rerankScore;
+    }
+
+    public Integer getFinalRank() {
+        return finalRank;
+    }
+
+    public void setFinalRank(Integer finalRank) {
+        this.finalRank = finalRank;
     }
 
     public String getContent() {

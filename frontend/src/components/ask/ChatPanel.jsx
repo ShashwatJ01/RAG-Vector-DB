@@ -22,6 +22,8 @@ function ChatPanel({
   setSemanticWeight,
   keywordWeight = 1,
   setKeywordWeight,
+  compareReranking = false,
+  setCompareReranking,
 }) {
   return (
     <section className="card chat-panel">
@@ -68,6 +70,14 @@ function ChatPanel({
             </label>
           </div>
         )}
+        <label className="rerank-toggle">
+          <input
+            type="checkbox"
+            checked={compareReranking}
+            onChange={(event) => setCompareReranking(event.target.checked)}
+          />
+          <span>Compare with no rerank</span>
+        </label>
       </div>
       <label className="question-box">
         <textarea value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a question about your documents..." />

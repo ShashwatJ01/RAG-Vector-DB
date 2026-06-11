@@ -29,6 +29,8 @@ function AskAiWorkspace(props) {
         setSemanticWeight={props.setSemanticWeight}
         keywordWeight={props.keywordWeight}
         setKeywordWeight={props.setKeywordWeight}
+        compareReranking={props.compareReranking}
+        setCompareReranking={props.setCompareReranking}
       />
       <SourceEvidencePanel selectedSource={props.selectedSource} copyText={props.copyText} />
     </div>

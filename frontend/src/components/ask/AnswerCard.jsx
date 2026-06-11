@@ -4,6 +4,7 @@ import SourceCitationCard from "./SourceCitationCard";
 function AnswerCard({ answer, selectedSource, setSelectedSource, askAi, copyText, setQuestion }) {
   if (!answer) return null;
   const sources = answer.sources || [];
+  const comparison = answer.rerankComparison;
 
   return (
     <article className="answer-card">
@@ -28,6 +29,12 @@ function AnswerCard({ answer, selectedSource, setSelectedSource, askAi, copyText
           <dt>Retrieval</dt>
           <dd>{answer.retrievalMode || "Semantic"}</dd>
         </div>
+        <div>
+          <dt>Pool</dt>
+          <dd>
+            {answer.retrievalTopN && answer.finalTopK ? `${answer.retrievalTopN} -> ${answer.finalTopK}` : "--"}
+          </dd>
+        </div>
       </dl>
       <div className="answer-actions">
         <button className="secondary-button" onClick={() => copyText(answer.answer, "Answer copied.")}>
@@ -40,6 +47,15 @@ function AnswerCard({ answer, selectedSource, setSelectedSource, askAi, copyText
           Regenerate
         </button>
       </div>
+      {comparison && (
+        <section className="rerank-comparison">
+          <div className="comparison-topline">
+            <h4>Without reranking</h4>
+            <span>{comparison.sourceOverlap} source overlap</span>
+          </div>
+          <p>{comparison.baselineAnswer}</p>
+        </section>
+      )}
       <div className="citations">
         {sources.map((source, index) => (
           <SourceCitationCard

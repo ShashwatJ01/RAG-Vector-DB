@@ -67,13 +67,19 @@ export function askQuestion({
   workspaceId,
   documentIds = [],
   topK = 4,
+  topN,
+  rerank = true,
+  compareReranking = false,
   searchMode = "semantic",
   semanticWeight = 1,
   keywordWeight = 1,
 }) {
+  const body = { query, workspaceId, documentIds, topK, rerank, compareReranking, searchMode, semanticWeight, keywordWeight };
+  if (topN) body.topN = topN;
+
   return request("/api/query", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query, workspaceId, documentIds, topK, searchMode, semanticWeight, keywordWeight }),
+    body: JSON.stringify(body),
   });
 }

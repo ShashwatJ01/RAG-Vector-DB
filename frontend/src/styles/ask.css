@@ -197,6 +197,24 @@
   accent-color: var(--accent);
 }
 
+.rerank-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.rerank-toggle input {
+  width: auto;
+  accent-color: var(--accent);
+}
+
+.rerank-toggle span {
+  margin: 0;
+}
+
 .question-box textarea {
   min-height: 140px;
   font-size: 1rem;
@@ -260,6 +278,40 @@
   color: var(--ink-soft);
   font-size: 1rem;
   line-height: 1.65;
+}
+
+.rerank-comparison {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-muted);
+  padding: 12px;
+}
+
+.comparison-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.comparison-topline h4,
+.rerank-comparison p {
+  margin: 0;
+}
+
+.comparison-topline span,
+.rank-line {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.rerank-comparison p {
+  color: var(--ink-soft);
+  line-height: 1.55;
 }
 
 .citations {

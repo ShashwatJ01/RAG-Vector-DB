@@ -7,6 +7,9 @@ public class QueryRequest {
     private String workspaceId;
     private List<String> documentIds;
     private Integer topK;
+    private Integer topN;
+    private Boolean rerank = true;
+    private Boolean compareReranking = false;
     private String searchMode = "semantic";
     private Double semanticWeight;
     private Double keywordWeight;
@@ -48,6 +51,30 @@ public class QueryRequest {
 
     public void setTopK(Integer topK) {
         this.topK = topK;
+    }
+
+    public Integer getTopN() {
+        return topN;
+    }
+
+    public void setTopN(Integer topN) {
+        this.topN = topN;
+    }
+
+    public Boolean getRerank() {
+        return rerank;
+    }
+
+    public void setRerank(Boolean rerank) {
+        this.rerank = rerank;
+    }
+
+    public Boolean getCompareReranking() {
+        return compareReranking;
+    }
+
+    public void setCompareReranking(Boolean compareReranking) {
+        this.compareReranking = compareReranking;
     }
 
     public String getSearchMode() {
