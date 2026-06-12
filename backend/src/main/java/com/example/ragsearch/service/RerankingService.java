@@ -1,6 +1,8 @@
 package com.example.ragsearch.service;
 
 import com.example.ragsearch.model.DocumentChunk;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class RerankingService {
+    private static final Logger logger = LoggerFactory.getLogger(RerankingService.class);
     private static final Pattern TOKEN_PATTERN = Pattern.compile("[a-z0-9]+");
     private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)?");
     private static final Set<String> STOP_WORDS = Set.of(
@@ -44,10 +47,25 @@ public class RerankingService {
     public List<DocumentChunk> rerank(String query, List<DocumentChunk> candidates, int topK) {
         applyOriginalRanks(candidates);
         QueryFeatures queryFeatures = QueryFeatures.from(query);
+        logger.debug("rerank scoring started candidateCount={} topK={} queryTermCount={} phraseCount={} numberCount={}",
+                candidates.size(),
+                topK,
+                queryFeatures.terms().size(),
+                queryFeatures.phrases().size(),
+                queryFeatures.numbers().size());
 
         List<DocumentChunk> ranked = new ArrayList<>(candidates);
         for (DocumentChunk chunk : ranked) {
             chunk.setRerankScore(score(queryFeatures, chunk));
+            if (logger.isDebugEnabled()) {
+                logger.debug("rerank candidate scored chunkId={} documentId={} originalRank={} retrievalScore={} rerankScore={} contentLength={}",
+                        chunk.getId(),
+                        chunk.getDocumentId(),
+                        chunk.getOriginalRank(),
+                        roundScore(retrievalScore(chunk)),
+                        chunk.getRerankScore(),
+                        chunk.getContent() == null ? 0 : chunk.getContent().length());
+            }
         }
 
         ranked.sort(Comparator
@@ -57,6 +75,11 @@ public class RerankingService {
         int limit = Math.min(Math.max(topK, 0), ranked.size());
         List<DocumentChunk> selected = new ArrayList<>(ranked.subList(0, limit));
         applyFinalRanks(selected);
+        logger.debug("rerank scoring completed selectedCount={} topChunkId={} topOriginalRank={} topRerankScore={}",
+                selected.size(),
+                selected.isEmpty() ? null : selected.get(0).getId(),
+                selected.isEmpty() ? null : selected.get(0).getOriginalRank(),
+                selected.isEmpty() ? null : selected.get(0).getRerankScore());
         return selected;
     }
 

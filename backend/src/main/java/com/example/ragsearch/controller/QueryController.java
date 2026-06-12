@@ -27,13 +27,21 @@ public class QueryController {
 
     @PostMapping
     public ResponseEntity<QueryResponse> ask(@RequestBody QueryRequest request) {
-        logger.info("Received query request");
+        logger.info("query request received workspaceId={} documentCount={} topK={} topN={} rerank={} compareReranking={} searchMode={} queryLength={}",
+                request.getWorkspaceId(),
+                request.getDocumentIds() == null ? 0 : request.getDocumentIds().size(),
+                request.getTopK(),
+                request.getTopN(),
+                request.getRerank(),
+                request.getCompareReranking(),
+                request.getSearchMode(),
+                request.getQuery() == null ? 0 : request.getQuery().length());
         try {
             if (request.getQuery() == null || request.getQuery().isBlank()) {
-                logger.warn("Query is null or blank");
+                logger.warn("query request rejected reason=blank_query workspaceId={}", request.getWorkspaceId());
                 return ResponseEntity.badRequest().build();
             }
-            logger.info("Processing query: '{}'", request.getQuery());
+            logger.debug("query request preview={}", trimForLog(request.getQuery()));
             int topK = request.getTopK() == null ? 0 : request.getTopK();
             SearchMode searchMode = SearchMode.from(request.getSearchMode());
             QueryResponse response = documentService.answerQuery(
@@ -48,8 +56,13 @@ public class QueryController {
                     request.getRerank(),
                     request.getCompareReranking()
             );
-            logger.info("Query processed successfully. Answer length: {} chars, sources: {}", 
-                    response.getAnswer().length(), response.getSources().size());
+            logger.info("query request completed answerLength={} sourceCount={} reranked={} retrievalTopN={} finalTopK={} comparison={}",
+                    response.getAnswer() == null ? 0 : response.getAnswer().length(),
+                    response.getSources() == null ? 0 : response.getSources().size(),
+                    response.getReranked(),
+                    response.getRetrievalTopN(),
+                    response.getFinalTopK(),
+                    response.getRerankComparison() != null);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException ex) {
             logger.error("Invalid argument in query: {}", ex.getMessage(), ex);
@@ -61,5 +74,10 @@ public class QueryController {
             logger.error("Unexpected error processing query: {}", ex.getMessage(), ex);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    private String trimForLog(String content) {
+        String compact = content.replaceAll("\\s+", " ").trim();
+        return compact.length() <= 160 ? compact : compact.substring(0, 157) + "...";
     }
 }

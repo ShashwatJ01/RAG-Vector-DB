@@ -49,18 +49,21 @@ public class GoogleGenerativeAiService {
     }
 
     public List<List<Double>> embedTexts(List<String> texts, String requestedEmbeddingModel) {
-        logger.info("Embedding {} text(s)", texts.size());
+        long startedAt = System.currentTimeMillis();
+        logger.info("embedding batch started textCount={} requestedModel={}", texts.size(), requestedEmbeddingModel);
         List<List<Double>> embeddings = new ArrayList<>();
         for (int i = 0; i < texts.size(); i++) {
             String text = texts.get(i);
-            logger.debug("Embedding text {} of {}, length: {} chars", i + 1, texts.size(), text.length());
+            logger.debug("embedding batch item started index={} total={} textLength={}", i + 1, texts.size(), lengthOf(text));
             List<Double> embedding = embedText(text, requestedEmbeddingModel);
             embeddings.add(embedding);
             if (embedding != null) {
-                logger.debug("Embedding {} dimension: {}", i + 1, embedding.size());
+                logger.debug("embedding batch item completed index={} dimension={}", i + 1, embedding.size());
             }
         }
-        logger.info("Successfully embedded {} texts", embeddings.size());
+        logger.info("embedding batch completed textCount={} durationMs={}",
+                embeddings.size(),
+                System.currentTimeMillis() - startedAt);
         return embeddings;
     }
 
@@ -72,7 +75,11 @@ public class GoogleGenerativeAiService {
         String model = requestedEmbeddingModel == null || requestedEmbeddingModel.isBlank()
                 ? embeddingModel
                 : requestedEmbeddingModel;
-        logger.debug("Calling embedContent API for text of length: {}", text.length());
+        long startedAt = System.currentTimeMillis();
+        logger.info("embedding request started model={} textLength={} outputDimensionality={}",
+                model,
+                text == null ? 0 : text.length(),
+                embeddingOutputDimensionality);
         Map<String, Object> request = Map.of(
                 "model", modelResourceName(model),
                 "content", Map.of("parts", List.of(Map.of("text", text))),
@@ -83,7 +90,10 @@ public class GoogleGenerativeAiService {
         if (embedding == null || embedding.isEmpty()) {
             throw new RuntimeException("Google API returned an empty embedding");
         }
-        logger.debug("Received embedding with dimension: {}", embedding.size());
+        logger.info("embedding request completed model={} dimension={} durationMs={}",
+                model,
+                embedding.size(),
+                System.currentTimeMillis() - startedAt);
         return embedding;
     }
 
@@ -95,9 +105,14 @@ public class GoogleGenerativeAiService {
         String model = requestedChatModel == null || requestedChatModel.isBlank()
                 ? chatModel
                 : requestedChatModel;
-        logger.info("Creating answer for query: '{}' using {} context excerpts", query, contexts.size());
+        long startedAt = System.currentTimeMillis();
+        logger.info("answer generation request started model={} queryLength={} contextCount={} contextChars={}",
+                model,
+                query == null ? 0 : query.length(),
+                contexts.size(),
+                totalContextChars(contexts));
         for (int i = 0; i < contexts.size(); i++) {
-            logger.debug("Context [{}] length: {} chars", i + 1, contexts.get(i).length());
+            logger.debug("answer context excerpt index={} length={}", i + 1, lengthOf(contexts.get(i)));
         }
         
         StringBuilder prompt = new StringBuilder();
@@ -120,13 +135,13 @@ public class GoogleGenerativeAiService {
         request.put("contents", List.of(Map.of("parts", List.of(Map.of("text", prompt.toString())))));
         request.put("generationConfig", Map.of("temperature", 0, "candidateCount", 1));
 
-        logger.info("Calling generateContent API with chat model: {}", model);
+        logger.info("gemini generateContent started model={} promptLength={}", model, prompt.length());
         Map<String, Object> response = post(apiUrl + "/v1beta/models/" + modelPathName(model) + ":generateContent", request);
         String answer = parseChatResponse(response);
-        logger.info("Generated answer length: {} chars", answer != null ? answer.length() : 0);
-        if (answer != null) {
-            logger.debug("Generated answer: {}", answer);
-        }
+        logger.info("answer generation request completed model={} answerLength={} durationMs={}",
+                model,
+                answer != null ? answer.length() : 0,
+                System.currentTimeMillis() - startedAt);
         return answer;
     }
 
@@ -195,6 +210,7 @@ public class GoogleGenerativeAiService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
 
         String urlWithKey = url + (url.contains("?") ? "&" : "?") + "key=" + apiKey;
+        long startedAt = System.currentTimeMillis();
         try {
             ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                     urlWithKey,
@@ -203,7 +219,9 @@ public class GoogleGenerativeAiService {
                     new ParameterizedTypeReference<>() {
                     }
             );
-            logger.debug("API response status: {}", response.getStatusCode());
+            logger.debug("google api request completed status={} durationMs={}",
+                    response.getStatusCode(),
+                    System.currentTimeMillis() - startedAt);
             if (response.getBody() == null) {
                 logger.error("API returned null response");
                 throw new RuntimeException("Google API returned an empty response");
@@ -218,15 +236,37 @@ public class GoogleGenerativeAiService {
             
             return response.getBody();
         } catch (HttpStatusCodeException ex) {
-            logger.error("Google API HTTP error: {} {}", ex.getStatusCode(), ex.getResponseBodyAsString(), ex);
+            logger.error("Google API HTTP error: {} {} durationMs={}",
+                    ex.getStatusCode(),
+                    ex.getResponseBodyAsString(),
+                    System.currentTimeMillis() - startedAt,
+                    ex);
             throw new RuntimeException("Failed to call Google API: " + ex.getStatusCode() + " " + ex.getResponseBodyAsString(), ex);
         } catch (org.springframework.web.client.RestClientException ex) {
-            logger.error("Error calling Google API (HTTP error): {}", ex.getMessage(), ex);
+            logger.error("Error calling Google API (HTTP error): {} durationMs={}",
+                    ex.getMessage(),
+                    System.currentTimeMillis() - startedAt,
+                    ex);
             throw new RuntimeException("Failed to call Google API: " + ex.getMessage(), ex);
         } catch (Exception ex) {
-            logger.error("Error calling Google API: {}", ex.getMessage(), ex);
+            logger.error("Error calling Google API: {} durationMs={}",
+                    ex.getMessage(),
+                    System.currentTimeMillis() - startedAt,
+                    ex);
             throw new RuntimeException("Failed to call Google API: " + ex.getMessage(), ex);
         }
+    }
+
+    private int totalContextChars(List<String> contexts) {
+        int total = 0;
+        for (String context : contexts) {
+            total += lengthOf(context);
+        }
+        return total;
+    }
+
+    private int lengthOf(String value) {
+        return value == null ? 0 : value.length();
     }
 
     private String modelPathName(String model) {

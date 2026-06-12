@@ -178,7 +178,16 @@ public class DocumentService {
                                      Integer topN,
                                      Boolean rerank,
                                      Boolean compareReranking) {
-        logger.info("Processing query: '{}'", query);
+        long pipelineStartedAt = System.currentTimeMillis();
+        logger.info("rag pipeline started workspaceId={} documentCount={} requestedTopK={} requestedTopN={} rerank={} compareReranking={} searchMode={} queryLength={}",
+                workspaceId,
+                documentFilterCount(documentIds),
+                topK,
+                topN,
+                rerank,
+                compareReranking,
+                searchMode,
+                query == null ? 0 : query.length());
         Workspace workspace = workspaceService.getWorkspace(workspaceId);
         String embeddingModel = workspace == null ? null : workspace.getEmbeddingModel();
         String chatModel = workspace == null ? null : workspace.getChatModel();
@@ -189,7 +198,22 @@ public class DocumentService {
         boolean shouldCompareReranking = shouldRerank && Boolean.TRUE.equals(compareReranking);
         int retrievalTopN = resolveRetrievalTopN(topN, boundedTopK, shouldRerank);
         SearchMode resolvedSearchMode = searchMode == null ? SearchMode.SEMANTIC : searchMode;
-        logger.info("Retrieving {} candidate chunk(s), then selecting final top {}", retrievalTopN, boundedTopK);
+        logger.info("rag pipeline configured workspaceResolved={} embeddingModel={} chatModel={} finalTopK={} retrievalTopN={} searchMode={} rerank={}",
+                workspace != null,
+                embeddingModel,
+                chatModel,
+                boundedTopK,
+                retrievalTopN,
+                resolvedSearchMode,
+                shouldRerank);
+
+        long retrievalStartedAt = System.currentTimeMillis();
+        logger.info("retrieval stage started searchMode={} workspaceId={} documentCount={} retrievalTopN={} finalTopK={}",
+                resolvedSearchMode,
+                workspaceId,
+                documentFilterCount(documentIds),
+                retrievalTopN,
+                boundedTopK);
         List<DocumentChunk> candidates = searchChunks(
                 query,
                 embeddingModel,
@@ -200,8 +224,12 @@ public class DocumentService {
                 resolveWeight(semanticWeight),
                 resolveWeight(keywordWeight)
         );
+        logger.info("retrieval stage completed candidateCount={} retrievalTopN={} durationMs={}",
+                candidates.size(),
+                retrievalTopN,
+                System.currentTimeMillis() - retrievalStartedAt);
         if (candidates.isEmpty()) {
-            logger.warn("No matching chunks found in Supabase");
+            logger.warn("rag pipeline completed with no candidates durationMs={}", System.currentTimeMillis() - pipelineStartedAt);
             return new QueryResponse("No documents have been uploaded yet.", List.of());
         }
 
@@ -213,11 +241,28 @@ public class DocumentService {
                 ? toCitations(baselineChunks)
                 : List.of();
 
-        List<DocumentChunk> finalChunks = shouldRerank
-                ? rerankingService.rerank(query, candidates, boundedTopK)
-                : baselineChunks;
+        long rerankStartedAt = System.currentTimeMillis();
+        List<DocumentChunk> finalChunks;
+        if (shouldRerank) {
+            logger.info("rerank stage started candidateCount={} finalTopK={} comparisonBaseline={}",
+                    candidates.size(),
+                    boundedTopK,
+                    shouldCompareReranking);
+            finalChunks = rerankingService.rerank(query, candidates, boundedTopK);
+            logger.info("rerank stage completed candidateCount={} finalCount={} topOriginalRank={} topRerankScore={} durationMs={}",
+                    candidates.size(),
+                    finalChunks.size(),
+                    finalChunks.isEmpty() ? null : finalChunks.get(0).getOriginalRank(),
+                    finalChunks.isEmpty() ? null : finalChunks.get(0).getRerankScore(),
+                    System.currentTimeMillis() - rerankStartedAt);
+        } else {
+            finalChunks = baselineChunks;
+            logger.info("rerank stage skipped finalCount={} durationMs={}",
+                    finalChunks.size(),
+                    System.currentTimeMillis() - rerankStartedAt);
+        }
 
-        logger.info("Selected {} final chunk(s) from {} candidate(s), rerank={}",
+        logger.info("final context selected finalCount={} candidateCount={} rerank={}",
                 finalChunks.size(), candidates.size(), shouldRerank);
         for (int i = 0; i < finalChunks.size(); i++) {
             DocumentChunk chunk = finalChunks.get(i);
@@ -235,21 +280,35 @@ public class DocumentService {
                 .map(DocumentChunk::getContent)
                 .collect(Collectors.toList());
 
-        logger.info("Generating answer based on {} context excerpts", context.size());
+        long answerStartedAt = System.currentTimeMillis();
+        logger.info("answer generation stage started contextCount={} chatModel={}", context.size(), chatModel);
         String answer = googleGenerativeAiService.createAnswer(query, context, chatModel);
+        logger.info("answer generation stage completed answerLength={} durationMs={}",
+                answer == null ? 0 : answer.length(),
+                System.currentTimeMillis() - answerStartedAt);
 
         List<SourceCitation> sources = toCitations(finalChunks);
         RerankComparison comparison = null;
         if (shouldCompareReranking) {
-            logger.info("Generating baseline answer without reranking for comparison");
+            long comparisonStartedAt = System.currentTimeMillis();
+            logger.info("rerank comparison stage started baselineCount={}", baselineChunks.size());
             List<String> baselineContext = baselineChunks.stream()
                     .map(DocumentChunk::getContent)
                     .collect(Collectors.toList());
             String baselineAnswer = googleGenerativeAiService.createAnswer(query, baselineContext, chatModel);
-            comparison = new RerankComparison(baselineAnswer, baselineSources, countSourceOverlap(sources, baselineSources));
+            int sourceOverlap = countSourceOverlap(sources, baselineSources);
+            comparison = new RerankComparison(baselineAnswer, baselineSources, sourceOverlap);
+            logger.info("rerank comparison stage completed baselineAnswerLength={} sourceOverlap={} durationMs={}",
+                    baselineAnswer == null ? 0 : baselineAnswer.length(),
+                    sourceOverlap,
+                    System.currentTimeMillis() - comparisonStartedAt);
         }
 
-        logger.info("Answer generated with {} source document(s)", sources.size());
+        logger.info("rag pipeline completed sourceCount={} reranked={} comparison={} durationMs={}",
+                sources.size(),
+                shouldRerank,
+                comparison != null,
+                System.currentTimeMillis() - pipelineStartedAt);
         return new QueryResponse(answer, sources, "Grounded", shouldRerank, retrievalTopN, boundedTopK, comparison);
     }
 
@@ -261,20 +320,28 @@ public class DocumentService {
                                              SearchMode searchMode,
                                              double semanticWeight,
                                              double keywordWeight) {
-        logger.info("Finding chunks using {} search", searchMode.name().toLowerCase());
+        logger.info("chunk search started mode={} limit={} workspaceFiltered={} documentCount={}",
+                searchMode.name().toLowerCase(),
+                limit,
+                workspaceId != null && !workspaceId.isBlank(),
+                documentFilterCount(documentIds));
         String keywordQuery = toKeywordSearchText(query);
         if (!keywordQuery.equals(query)) {
-            logger.debug("Keyword search text normalized from '{}' to '{}'", query, keywordQuery);
+            logger.debug("keyword query normalized originalLength={} normalizedLength={}",
+                    query == null ? 0 : query.length(),
+                    keywordQuery == null ? 0 : keywordQuery.length());
         }
 
         if (searchMode == SearchMode.KEYWORD) {
             return vectorStoreService.searchKeyword(keywordQuery, limit, workspaceId, documentIds);
         }
 
-        logger.info("Computing embedding for query");
+        logger.info("query embedding stage started embeddingModel={} queryLength={}",
+                embeddingModel,
+                query == null ? 0 : query.length());
         List<Double> queryEmbedding = googleGenerativeAiService.embedText(query, embeddingModel);
         if (queryEmbedding != null) {
-            logger.debug("Query embedding dimension: {}", queryEmbedding.size());
+            logger.info("query embedding stage completed dimension={}", queryEmbedding.size());
         }
 
         if (searchMode == SearchMode.HYBRID) {
@@ -319,6 +386,10 @@ public class DocumentService {
                 .map(SourceCitation::getId)
                 .filter(baselineIds::contains)
                 .count();
+    }
+
+    private int documentFilterCount(List<String> documentIds) {
+        return documentIds == null ? 0 : documentIds.size();
     }
 
     private int resolveRetrievalTopN(Integer requestedTopN, int finalTopK, boolean shouldRerank) {

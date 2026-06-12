@@ -127,11 +127,15 @@ public class VectorStoreService {
     }
 
     public List<DocumentChunk> searchNearest(List<Double> queryEmbedding, int limit, String workspaceId, List<String> documentIds) {
+        long startedAt = System.currentTimeMillis();
         String queryVector = toVectorLiteral(queryEmbedding);
-        logger.debug("Searching nearest chunks with limit={}, vector length={}, filtered documents={}",
-                limit, queryEmbedding.size(), documentIds == null ? 0 : documentIds.size());
         boolean hasDocumentFilter = documentIds != null && !documentIds.isEmpty();
         boolean hasWorkspaceFilter = workspaceId != null && !workspaceId.isBlank();
+        logger.info("vector search started mode=semantic limit={} vectorDimension={} workspaceFiltered={} documentCount={}",
+                limit,
+                queryEmbedding.size(),
+                hasWorkspaceFilter,
+                documentFilterCount(documentIds));
         String documentFilter = "";
         if (hasDocumentFilter) {
             documentFilter = "WHERE d.document_status = 'INDEXED' AND dc.document_id IN (" + documentIds.stream().map(id -> "?").collect(Collectors.joining(",")) + ") ";
@@ -141,7 +145,7 @@ public class VectorStoreService {
             documentFilter = "WHERE d.document_status = 'INDEXED' ";
         }
         Object[] parameters = buildSearchParameters(queryVector, workspaceId, documentIds, limit);
-        return jdbcTemplate.query(
+        List<DocumentChunk> results = jdbcTemplate.query(
                 "SELECT dc.id, dc.document_id, d.file_name, dc.content, (dc.embedding <=> ?::vector) AS distance " +
                         "FROM document_chunks dc " +
                         "JOIN documents d ON d.id = dc.document_id " +
@@ -158,13 +162,22 @@ public class VectorStoreService {
                         rs.getDouble("distance")
                 )
         );
+        logger.info("vector search completed mode=semantic resultCount={} limit={} durationMs={}",
+                results.size(),
+                limit,
+                System.currentTimeMillis() - startedAt);
+        return results;
     }
 
     public List<DocumentChunk> searchKeyword(String queryText, int limit, String workspaceId, List<String> documentIds) {
-        logger.debug("Searching chunks with Postgres full-text search limit={}, filtered documents={}",
-                limit, documentIds == null ? 0 : documentIds.size());
+        long startedAt = System.currentTimeMillis();
         boolean hasDocumentFilter = documentIds != null && !documentIds.isEmpty();
         boolean hasWorkspaceFilter = !hasDocumentFilter && workspaceId != null && !workspaceId.isBlank();
+        logger.info("vector search started mode=keyword limit={} workspaceFiltered={} documentCount={} queryLength={}",
+                limit,
+                hasWorkspaceFilter,
+                documentFilterCount(documentIds),
+                queryText == null ? 0 : queryText.length());
         String documentFilter = "WHERE d.document_status = 'INDEXED' AND dc.content_search @@ q.query ";
         if (hasDocumentFilter) {
             documentFilter += "AND dc.document_id IN (" + documentIds.stream().map(id -> "?").collect(Collectors.joining(",")) + ") ";
@@ -181,7 +194,7 @@ public class VectorStoreService {
         }
         parameters.add(limit);
 
-        return jdbcTemplate.query(
+        List<DocumentChunk> results = jdbcTemplate.query(
                 "WITH q AS (SELECT websearch_to_tsquery('english', ?) AS query) " +
                         "SELECT dc.id, dc.document_id, d.file_name, dc.content, " +
                         "GREATEST(0.0, 1.0 - LEAST(ts_rank_cd(dc.content_search, q.query, 32)::double precision, 1.0)) AS distance " +
@@ -194,6 +207,11 @@ public class VectorStoreService {
                 parameters.toArray(),
                 (rs, rowNum) -> mapChunkSearchResult(rs)
         );
+        logger.info("vector search completed mode=keyword resultCount={} limit={} durationMs={}",
+                results.size(),
+                limit,
+                System.currentTimeMillis() - startedAt);
+        return results;
     }
 
     public List<DocumentChunk> searchHybrid(String queryText,
@@ -203,13 +221,20 @@ public class VectorStoreService {
                                             List<String> documentIds,
                                             double semanticWeight,
                                             double keywordWeight) {
+        long startedAt = System.currentTimeMillis();
         String queryVector = toVectorLiteral(queryEmbedding);
         List<String> filteredDocumentIds = documentIds == null ? List.of() : documentIds;
         String workspaceFilter = filteredDocumentIds.isEmpty() ? normalizeWorkspaceId(workspaceId) : null;
-        logger.debug("Searching chunks with hybrid RRF limit={}, semanticWeight={}, keywordWeight={}, filtered documents={}",
-                limit, semanticWeight, keywordWeight, filteredDocumentIds.size());
+        logger.info("vector search started mode=hybrid limit={} vectorDimension={} workspaceFiltered={} documentCount={} semanticWeight={} keywordWeight={} queryLength={}",
+                limit,
+                queryEmbedding.size(),
+                workspaceFilter != null,
+                filteredDocumentIds.size(),
+                semanticWeight,
+                keywordWeight,
+                queryText == null ? 0 : queryText.length());
 
-        return jdbcTemplate.query(
+        List<DocumentChunk> results = jdbcTemplate.query(
                 "SELECT id, document_id, file_name, content, GREATEST(0.0, 1.0 - relevance_score) AS distance " +
                         "FROM public.hybrid_search_document_chunks(?, ?::vector, ?, ?, ?::text[], ?, ?, 50)",
                 statement -> {
@@ -228,6 +253,11 @@ public class VectorStoreService {
                 },
                 (rs, rowNum) -> mapChunkSearchResult(rs)
         );
+        logger.info("vector search completed mode=hybrid resultCount={} limit={} durationMs={}",
+                results.size(),
+                limit,
+                System.currentTimeMillis() - startedAt);
+        return results;
     }
 
     public void deleteDocument(String documentId) {
@@ -253,6 +283,10 @@ public class VectorStoreService {
         }
         parameters[parameters.length - 1] = limit;
         return parameters;
+    }
+
+    private int documentFilterCount(List<String> documentIds) {
+        return documentIds == null ? 0 : documentIds.size();
     }
 
     private DocumentChunk mapChunkSearchResult(ResultSet rs) throws SQLException {
