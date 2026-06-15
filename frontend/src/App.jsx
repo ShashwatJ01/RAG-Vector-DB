@@ -36,7 +36,23 @@ const searchModeLabels = {
   hybrid: "Hybrid",
 };
 
+const themeStorageKey = "rag-theme";
+
+const getPreferredTheme = () => (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+
+const getInitialTheme = () => {
+  try {
+    const storedTheme = window.localStorage.getItem(themeStorageKey);
+    if (storedTheme === "dark" || storedTheme === "light") return storedTheme;
+  } catch {
+    return getPreferredTheme();
+  }
+
+  return getPreferredTheme();
+};
+
 function App() {
+  const [theme, setTheme] = useState(getInitialTheme);
   const [page, setPage] = useState("workspaces");
   const [workspaces, setWorkspaces] = useState([]);
   const [documentsByWorkspace, setDocumentsByWorkspace] = useState({});
@@ -70,6 +86,16 @@ function App() {
   useEffect(() => {
     refreshAppData();
   }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    try {
+      window.localStorage.setItem(themeStorageKey, theme);
+    } catch {
+      // The visual theme should still apply if browser storage is unavailable.
+    }
+  }, [theme]);
 
   useEffect(() => {
     if (!hasPendingIngestion) return undefined;
@@ -321,6 +347,10 @@ function App() {
     showSnackbar(message);
   };
 
+  const toggleTheme = () => {
+    setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
+  };
+
   return (
     <>
       <AppLayout
@@ -328,6 +358,8 @@ function App() {
         selectedWorkspace={selectedWorkspace}
         onNavigate={handleNavigate}
         onCreateWorkspace={() => setWorkspaceModalOpen(true)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       >
         {page === "workspaces" && (
           <WorkspacesPage

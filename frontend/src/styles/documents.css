@@ -92,7 +92,7 @@
   gap: 10px;
   align-items: center;
   margin-bottom: 14px;
-  border: 1px solid #bcd4ff;
+  border: 1px solid var(--processing-line);
   border-radius: 8px;
   background: var(--cobalt-soft);
   padding: 12px;

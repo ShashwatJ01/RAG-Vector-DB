@@ -6,6 +6,20 @@
     <title>RAG AI Search</title>
   </head>
   <body>
+    <script>
+      (() => {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const fallbackTheme = prefersDark ? "dark" : "light";
+
+        try {
+          const storedTheme = window.localStorage.getItem("rag-theme");
+          const theme = storedTheme === "dark" || storedTheme === "light" ? storedTheme : fallbackTheme;
+          document.documentElement.dataset.theme = theme;
+        } catch {
+          document.documentElement.dataset.theme = fallbackTheme;
+        }
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

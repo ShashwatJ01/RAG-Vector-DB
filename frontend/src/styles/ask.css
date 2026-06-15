@@ -47,7 +47,7 @@
 .scope-segmented button.active {
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 1px 8px rgba(28, 39, 50, 0.08);
+  box-shadow: var(--control-shadow);
 }
 
 .document-picker {
@@ -238,7 +238,7 @@
   height: 6px;
   overflow: hidden;
   border-radius: 999px;
-  background: #f0dfbb;
+  background: var(--loader-track);
 }
 
 .linear-loader::after {
@@ -334,7 +334,7 @@
 
 .citation-card.active {
   border-color: var(--accent);
-  background: #fff7e5;
+  background: var(--selected-surface);
 }
 
 .citation-card small,

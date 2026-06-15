@@ -55,7 +55,7 @@ label span,
 
 .primary-button {
   background: var(--ink);
-  color: #fffdf8;
+  color: var(--surface);
 }
 
 .secondary-button {
@@ -71,8 +71,8 @@ label span,
 }
 
 .danger-button {
-  border-color: #fac1c1;
-  background: #fff1f1;
+  border-color: var(--danger-line);
+  background: var(--danger-bg);
   color: var(--red);
 }
 
@@ -89,9 +89,9 @@ label span,
 }
 
 .status-dot {
-  border: 1px solid rgba(31, 122, 77, 0.28);
+  border: 1px solid var(--success-line);
   border-radius: 999px;
-  background: #eef8f1;
+  background: var(--success-bg);
   color: var(--green);
   padding: 7px 12px;
   font-size: 0.86rem;
@@ -124,21 +124,21 @@ label span,
 .status-chip.completed,
 .status-chip.indexed,
 .status-chip.active {
-  border-color: rgba(31, 122, 77, 0.28);
-  background: #eaf8f0;
+  border-color: var(--success-line);
+  background: var(--success-soft-bg);
   color: var(--green);
 }
 
 .status-chip.processing {
-  border-color: #bcd4ff;
+  border-color: var(--processing-line);
   background: var(--cobalt-soft);
   color: var(--cobalt);
 }
 
 .status-chip.failed {
-  border-color: #fac1c1;
-  background: #fff1f1;
-  color: #b42318;
+  border-color: var(--danger-line);
+  background: var(--danger-bg);
+  color: var(--red);
 }
 
 .status-chip.queued {
