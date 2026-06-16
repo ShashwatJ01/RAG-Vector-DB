@@ -17,6 +17,7 @@ The project uses:
 - Generate vector embeddings using Gemini
 - Retrieve the most relevant chunks for a user query
 - Generate grounded answers from retrieved context
+- Switch between light and dark mode in the frontend
 - Store logs in a file for easier debugging
 
 ## How It Works
@@ -87,6 +88,17 @@ http://localhost:3000
 ```
 
 Vite proxies `/api` requests to the backend at `http://localhost:8080`.
+
+## Frontend Theme
+
+The React UI supports light and dark mode. Use the theme toggle in the topbar to switch modes.
+
+Theme behavior:
+
+- The selected theme is saved in `localStorage` as `rag-theme`.
+- If no theme was selected yet, the app follows the browser or OS color-scheme preference.
+- A small bootstrap script in `frontend/index.html` applies the saved theme before React loads, which avoids a flash of the wrong theme.
+- Theme colors are controlled with CSS variables in `frontend/src/styles/base.css`; component styles consume those variables across cards, forms, badges, overlays, and the Ask AI workspace.
 
 ## Configuration
 

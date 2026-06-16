@@ -7,7 +7,7 @@ This project is a full-stack RAG application. It lets a user upload PDF or text 
 The application has two main parts:
 
 - `backend`: Spring Boot API for file upload, async ingestion jobs, background text extraction, embeddings, vector storage, vector search, and answer generation.
-- `frontend`: React + Vite UI for uploading documents, watching ingestion status, and asking questions.
+- `frontend`: React + Vite UI for uploading documents, watching ingestion status, asking questions, and switching between light and dark mode.
 
 ## What This Project Does
 
@@ -650,6 +650,10 @@ The main frontend logic is in `frontend/src/App.jsx`.
 - It renders source citations returned by the backend.
 - In the Ask AI panel, the retrieval toggle supports `Semantic`, `Keyword`, and `Hybrid`.
 - In `Hybrid`, the semantic and keyword sliders are sent as `semanticWeight` and `keywordWeight`.
+- It stores the selected visual theme as `rag-theme` in `localStorage` and applies it through `data-theme` on the document root.
+- If no theme has been selected, it uses the browser or OS `prefers-color-scheme` setting.
+- A small bootstrap script in `frontend/index.html` applies the saved theme before React mounts to avoid a flash of the wrong theme.
+- Theme colors are defined as CSS variables in `frontend/src/styles/base.css`; the layout, component, document, Ask AI, and overlay styles consume those variables.
 
 Backend status values:
 
